@@ -1,0 +1,4 @@
+#Install all packages
+#pip install -r requirements.txt
+
+Django==1.8.4
