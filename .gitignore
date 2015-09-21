@@ -56,5 +56,14 @@ docs/_build/
 # PyBuilder
 target/
 
+#Bd
+eyetracking/db.sqlite3
+
+#PyCharm
+.idea/
+
+#Migrations
+eyetracking/*/migrations
+
 #Virtual enviroment
-/eyetracking/venv
+eyetracking/venv
