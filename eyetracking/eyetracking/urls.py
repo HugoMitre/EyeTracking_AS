@@ -20,6 +20,6 @@ from tracker import views
 
 urlpatterns = [
         #url(r'^admin/', include(admin.site.urls)),
-        url(r'^$', views.index, name='index'),
-        url(r'^tracker/', include('tracker.urls')),
+        url(r'^$', views.home, name='home'),
+        url(r'^tracker/', include('tracker.urls', namespace="tracker")),
     ]
