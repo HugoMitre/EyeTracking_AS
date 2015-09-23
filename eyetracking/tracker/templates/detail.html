@@ -6,6 +6,47 @@
     {% include 'menu.html' with active_menu='tracker' %}
 {% endblock %}
 
-{% block content %}
+{% block page_title %} Eye Tracker Settings {% endblock %}
 
+{% block actions %}
+    <a class="btn btn-primary" href="{% url 'tracker:update_tracker' %}" role="button"><i class="glyphicon glyphicon-edit"></i> Update</a>
+    <a class="btn btn-success" href="{% url 'tracker:record_tracker' %}" role="button"><i class="glyphicon glyphicon-play"></i> Record</a>
+{% endblock %}
+
+{% block content %}
+    <table class="table table-striped">
+        <tr>
+            <td><strong>Ip</strong></td>
+            <td>{{ model.ip }}</td>
+        </tr>
+        <tr>
+            <td><strong>Port</strong></td>
+            <td>{{ model.port }}</td>
+        </tr>
+        <tr>
+            <td><strong>Frame rate</strong></td>
+            <td>{{ model.frame_rate }}</td>
+        </tr>
+    </table>
+{% endblock %}
+
+{% block body_files %}
+    <script>
+        $(document).ready(function() {
+
+            {% if messages %}
+                {% for message in messages %}
+                    toastr.options = {
+                        closeButton: true,
+                        progressBar: true,
+                        showMethod: 'slideDown',
+                        timeOut: 4000
+                    };
+                    title_message = "{{ message.tags }}";
+                    toastr["{{ message.tags }}"]('{{ message }}', title_message.toUpperCase());
+                {% endfor %}
+            {% endif %}
+
+        });
+    </script>
 {% endblock %}
