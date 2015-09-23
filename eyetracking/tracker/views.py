@@ -5,6 +5,8 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from tracker.forms import *
+from pytribe import *
+import time
 
 # Create your views here.
 def home(request):
@@ -58,5 +60,20 @@ def detail(request):
 def record(request):
 
     form = RecordForm()
+
+    if request.method == 'POST':
+        seconds = request.POST['time']
+
+        try:
+            eyetribe = EyeTribe('Maner')
+            eyetribe.start_recording()
+            time.sleep(float(seconds))
+            eyetribe.stop_recording()
+            eyetribe.close()
+            messages.success(request, 'Completed')
+        except Exception:
+            messages.error(request, "Expected error")
+
+        return HttpResponseRedirect(reverse('tracker:record_tracker'))
 
     return render(request, 'record.html', {'form':form})

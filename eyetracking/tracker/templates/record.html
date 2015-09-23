@@ -9,5 +9,26 @@
 {% block page_title %} Record {% endblock %}
 
 {% block content %}
-    {% include "form.html" %}
+    {% include "form.html" with name_button='start' %}
+{% endblock %}
+
+{% block body_files %}
+    <script>
+        $(document).ready(function() {
+
+            {% if messages %}
+                {% for message in messages %}
+                    toastr.options = {
+                        closeButton: true,
+                        progressBar: true,
+                        showMethod: 'slideDown',
+                        timeOut: 4000
+                    };
+                    title_message = "{{ message.tags }}";
+                    toastr["{{ message.tags }}"]('{{ message }}', title_message.toUpperCase());
+                {% endfor %}
+            {% endif %}
+
+        });
+    </script>
 {% endblock %}
