@@ -1,6 +1,5 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
-from tracker.models import Tracker
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
@@ -61,19 +60,25 @@ def record(request):
 
     form = RecordForm()
 
-    if request.method == 'POST':
-        seconds = request.POST['time']
+    try:
+        model = Tracker.objects.get(pk=1)
 
-        try:
-            eyetribe = EyeTribe('Maner')
+        #tracker_state = eyetribe._tracker.get_trackerstate()
+        #print (tracker_state)
+
+        if request.method == 'POST':
+            seconds = request.POST['time']
+
+            eyetribe = EyeTribe(model.ip, model.port, False)
             eyetribe.start_recording()
-            time.sleep(float(seconds))
+            time.sleep(int(seconds))
             eyetribe.stop_recording()
             eyetribe.close()
             messages.success(request, 'Completed')
-        except Exception:
-            messages.error(request, "Expected error")
 
-        return HttpResponseRedirect(reverse('tracker:record_tracker'))
+            return HttpResponseRedirect(reverse('tracker:record_tracker'))
+
+    except Exception as e:
+            messages.error(request, str(e))
 
     return render(request, 'record.html', {'form':form})

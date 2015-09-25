@@ -12,6 +12,7 @@ import time
 import socket
 from threading import Thread, Lock
 from multiprocessing import Queue
+from tracker.models import TrackerData
 
 
 class EyeTribe:
@@ -19,25 +20,23 @@ class EyeTribe:
 	"""class for eye tracking and data collection using an EyeTribe tracker
 	"""
 	
-	def __init__(self, logfilename='default.txt'):
+	def __init__(self, host='localhost', port=6555, DEBUG=True):
 		
 		"""Initializes an EyeTribe instance
-		
+
 		keyword arguments
-		
-		logfilename	--	string indicating the log file name, including
-						a full path to it's location and an extension
-						(default = 'default.txt')
+
+		host		--	a string indicating the host IP, NOTE: currently only
+					'localhost' is supported (default = 'localhost')
+		port		--	an integer indicating the port number, NOTE: currently
+					only 6555 is supported (default = 6555)
 		"""
 		
 		# initialize data collectors
-		self._logfile = open('%s.tsv' % (logfilename), 'w')
-		self._separator = '\t'
-		self._log_header()
 		self._queue = Queue()
 		
 		# initialize connection
-		self._connection = connection(host='localhost',port=6555)
+		self._connection = connection(host=host, port=port, DEBUG=DEBUG)
 		self._tracker = tracker(self._connection)
 		self._heartbeat = heartbeat(self._connection)
 		
@@ -73,7 +72,7 @@ class EyeTribe:
 		self._dpthread.start()
 		
 		# initialize calibration
-		self.calibration = calibration(self._connection)
+		#self.calibration = calibration(self._connection)
 	
 	def start_recording(self):
 		
@@ -84,7 +83,6 @@ class EyeTribe:
 		# writing samples to the log file
 		if not self._logdata:
 			self._logdata = True
-			self.log_message("start_recording")
 	
 	def stop_recording(self):
 		
@@ -94,31 +92,8 @@ class EyeTribe:
 		# set self._logdata to False, so the data processing thread does not
 		# write samples to the log file
 		if self._logdata:
-			self.log_message("stop_recording")
 			self._logdata = False
-			# write file object buffer to OS buffer
-			self._logfile.flush()
-			# write data from RAM to disk
-			os.fsync(self._logfile.fileno())
-	
-	def log_message(self, message):
-		
-		"""Logs a message to the logfile, time locked to the most recent
-		sample
-		"""
-		
-		# timestamp, based on the most recent sample
-		if self._currentsample != None:
-			ts = self._currentsample['timestamp']
-			t = self._currentsample['time']
-		else:
-			ts = ''
-			t = ''
-		# assemble line
-		line = self._separator.join(map(str,['MSG',ts,t,message]))
-		# write message
-		self._logfile.write(line + '\n') # to internal buffer
-	
+
 	def sample(self):
 		
 		"""Returns the most recent point of regard (=gaze location on screen)
@@ -171,10 +146,7 @@ class EyeTribe:
 		self._beating = False
 		self._streaming = False
 		self._processing = False
-		
-		# close the log file
-		self._logfile.close()
-		
+
 		# close the connection
 		self._connection.close()
 	
@@ -278,57 +250,37 @@ class EyeTribe:
 	
 	def _log_sample(self, sample):
 		
-		"""Writes a sample to the log file
+		"""Writes a sample to the bd
 		
 		arguments
 		
 		sample		--	a sample dict, as is returned by
 						tracker.get_frame
 		"""
-		
-		# assemble new line
-		line = self._separator.join(map(str,[	sample['timestamp'],
-										sample['time'],
-										sample['fix'],
-										sample['state'],
-										sample['rawx'],
-										sample['rawy'],
-										sample['avgx'],
-										sample['avgy'],
-										sample['psize'],
-										sample['Lrawx'],
-										sample['Lrawy'],
-										sample['Lavgx'],
-										sample['Lavgy'],
-										sample['Lpsize'],
-										sample['Lpupilx'],
-										sample['Lpupily'],
-										sample['Rrawx'],
-										sample['Rrawy'],
-										sample['Ravgx'],
-										sample['Ravgy'],
-										sample['Rpsize'],
-										sample['Rpupilx'],
-										sample['Rpupily']
-								]))
-		# write line to log file
-		self._logfile.write(line + '\n') # to internal buffer
-	
-	def _log_header(self):
-		
-		"""Logs a header to the data file
-		"""
-		
-		# write a header to the data file
-		header = self._separator.join(['timestamp','time','fix','state',
-								'rawx','rawy','avgx','avgy','psize',
-								'Lrawx','Lrawy','Lavgx','Lavgy','Lpsize','Lpupilx','Lpupily',
-								'Rrawx','Rrawy','Ravgx','Ravgy','Rpsize','Rpupilx','Rpupily'
-								])
-		self._logfile.write(header + '\n') # to internal buffer
-		self._logfile.flush() # internal buffer to RAM
-		os.fsync(self._logfile.fileno()) # RAM file cache to disk
-		self._firstlog = False
+
+		TrackerData.objects.create(timestamp=sample['timestamp'],
+                                    time=sample['time'],
+								    fix=sample['fix'],
+									state=sample['state'],
+									raw_x=sample['rawx'],
+									raw_y=sample['rawy'],
+									avg_x=sample['avgx'],
+									avg_y=sample['avgy'],
+									pupil_size=sample['psize'],
+									left_raw_x=sample['Lrawx'],
+									left_raw_y=sample['Lrawy'],
+									left_avg_x=sample['Lavgx'],
+									left_avg_y=sample['Lavgy'],
+									left_pupil_size=sample['Lpsize'],
+									left_pupil_x=sample['Lpupilx'],
+									left_pupil_y=sample['Lpupily'],
+									right_raw_x=sample['Rrawx'],
+									right_raw_y=sample['Rrawy'],
+									right_avg_x=sample['Ravgx'],
+									right_avg_y=sample['Ravgy'],
+									right_pupil_size=sample['Rpsize'],
+									right_pupil_x=sample['Rpupilx'],
+									right_pupil_y=sample['Rpupily'])
 
 
 # # # # #
@@ -338,7 +290,7 @@ class connection:
 	
 	"""class for connections with the EyeTribe tracker"""
 	
-	def __init__(self, host='localhost', port=6555):
+	def __init__(self, host, port, DEBUG):
 		
 		"""Initializes the connection with the EyeTribe tracker
 		
@@ -349,16 +301,17 @@ class connection:
 		port		--	an integer indicating the port number, NOTE: currently
 					only 6555 is supported (default = 6555)
 		"""
-		
+
 		# properties
 		self.host = host
 		self.port = port
 		self.resplist = []
-		self.DEBUG = True
+		self.DEBUG = DEBUG
 		
 		# initialize a connection
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.sock.connect((self.host,self.port))
+
 		# Create lock
 		self._request_lock = Lock()
 	
@@ -391,8 +344,6 @@ class connection:
 		
 		# return the appropriate response
 		if success:
-			print ('Maner')
-			print (self.resplist)
 			for i in range(len(self.resplist)):
 				# check if the category matches
 				if self.resplist[i]['category'] == category:
@@ -438,7 +389,7 @@ class connection:
 	def create_json(self, category, request, values):
 		
 		"""Creates a new json message, in the format that is required by the
-		EyeTribe tracker; these messages consist of a categort, a request and
+		EyeTribe tracker; these messages consist of a category, a request and
 		a (list of) value(s), which can be thought of as class.method.value
 		(for more info, see: http://dev.theeyetribe.com/api/)
 		
@@ -1335,14 +1286,3 @@ class heartbeat:
 			return True
 		else:
 			raise Exception("Error in heartbeat.beat: %s (code %d)" % (response['values']['statusmessage'],response['statuscode']))
-		
-
-# # # # #
-# DEBUG #
-if __name__ == "__main__":
-	test = EyeTribe('test.txt')
-	test.start_recording()
-	time.sleep(10)
-	test.stop_recording()
-	test.close()
-# # # # #
