@@ -59,12 +59,14 @@ def detail(request):
 def record(request):
 
     form = RecordForm()
+    tracker_state = 1
 
     try:
         model = Tracker.objects.get(pk=1)
-
-        #tracker_state = eyetribe._tracker.get_trackerstate()
-        #print (tracker_state)
+        eyetribe = EyeTribe(model.ip, model.port, True)
+        time.sleep(.01)
+        tracker_state = eyetribe._tracker.get_trackerstate()
+        eyetribe.close()
 
         if request.method == 'POST':
             seconds = request.POST['time']
@@ -79,6 +81,7 @@ def record(request):
             return HttpResponseRedirect(reverse('tracker:record_tracker'))
 
     except Exception as e:
-            messages.error(request, str(e))
+        #messages.error(request, str(e))
+        pass
 
-    return render(request, 'record.html', {'form':form})
+    return render(request, 'record.html', {'form':form, 'tracker_state':tracker_state})
