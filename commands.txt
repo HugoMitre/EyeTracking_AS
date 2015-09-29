@@ -1,0 +1,9 @@
+autopep8
+autopep8 eyetracking -r --in-place --verbose --exclude='venv' --ignore=E501
+
+flake8
+flake8 eyetracking/ --ignore=E501 --exclude='venv' --max-complexity=10
+
+inspectdb
+python manage.py inspectdb > users/models.py
+
