@@ -8,6 +8,8 @@ from pytribe import *
 import time
 
 # Create your views here.
+
+
 def home(request):
 
     return render(request, 'home.html', {})
@@ -25,7 +27,7 @@ def create(request):
     else:
         form = TrackerForm()
 
-    return render(request, 'create.html', {'form':form})
+    return render(request, 'create.html', {'form': form})
 
 
 def update(request):
@@ -42,7 +44,7 @@ def update(request):
     else:
         form = TrackerForm(None, instance=model)
 
-    return render(request, 'update.html', {'form':form})
+    return render(request, 'update.html', {'form': form})
 
 
 def detail(request):
@@ -53,7 +55,7 @@ def detail(request):
         messages.warning(request, "Doesn't exist any eye tracker added.")
         return HttpResponseRedirect(reverse('tracker:create_tracker'))
 
-    return render(request, 'detail.html', {'model':model})
+    return render(request, 'detail.html', {'model': model})
 
 
 def record(request):
@@ -84,4 +86,4 @@ def record(request):
         #messages.error(request, str(e))
         pass
 
-    return render(request, 'record.html', {'form':form, 'tracker_state':tracker_state})
+    return render(request, 'record.html', {'form': form, 'tracker_state': tracker_state})
