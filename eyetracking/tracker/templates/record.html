@@ -9,16 +9,32 @@
 {% block page_title %} Record {% endblock %}
 
 {% block content %}
+
     {% if tracker_state == 0 %}
-        <p class="bg-success">Tracker device is detected and working</p>
+        <div class="alert alert-success alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&#215;</button>
+            Tracker device is detected and working
+        </div>
     {% elif tracker_state == 1 %}
-        <p class="bg-danger">Tracker device is not detected</p>
+        <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&#215;</button>
+            Tracker device is not detected
+        </div>
     {% elif tracker_state == 2 %}
-        <p class="bg-warning">Tracker device is detected but not working due to wrong/unsupported firmware</p>
+        <div class="alert alert-warning alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&#215;</button>
+            Tracker device is detected but not working due to wrong/unsupported firmware
+        </div>
     {% elif tracker_state == 3 %}
-        <p class="bg-warning">Tracker device is detected but not working due to unsupported USB host</p>
+        <div class="alert alert-warning alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&#215;</button>
+            Tracker device is detected but not working due to unsupported USB host
+        </div>
     {% elif tracker_state == 4 %}
-        <p class="bg-warning">Tracker device is detected but not working due to no stream could be received</p>
+        <div class="alert alert-warning alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&#215;</button>
+            Tracker device is detected but not working due to no stream could be received
+        </div>
     {% endif %}
     {% include "form.html" with name_button='start' %}
 {% endblock %}
