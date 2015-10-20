@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django_tables2   import RequestConfig
+from django_tables2 import RequestConfig
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
@@ -14,7 +14,7 @@ def index(request):
     table = ImageTable(Image.objects.all())
     RequestConfig(request, paginate={"per_page": 10}).configure(table)
 
-    return render(request, 'images/index.html', {'table':table})
+    return render(request, 'images/index.html', {'table': table})
 
 
 def add(request):
@@ -29,7 +29,7 @@ def add(request):
     else:
         form = ImageForm()
 
-    return render(request, 'images/add.html', {'form':form})
+    return render(request, 'images/add.html', {'form': form})
 
 
 def update(request, pk):
@@ -46,7 +46,7 @@ def update(request, pk):
     else:
         form = ImageForm(None, instance=model)
 
-    return render(request, 'images/update.html', {'form':form})
+    return render(request, 'images/update.html', {'form': form})
 
 
 def delete(request, pk):
