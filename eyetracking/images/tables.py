@@ -6,7 +6,7 @@ from django.utils.safestring import mark_safe
 
 class ImageTable(tables.Table):
     name = tables.LinkColumn('images:detail_image', args=[A('pk')])
-    actions = tables.LinkColumn('images:update_image', args=[A('pk')], orderable=False, empty_values=())
+    actions = tables.Column(orderable=False, empty_values=())
 
     class Meta:
         model = Image
