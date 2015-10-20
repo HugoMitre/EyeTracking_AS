@@ -3,11 +3,10 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
-from tracker.forms import *
+from tracker.forms import TrackerForm, RecordForm
+from tracker.models import Tracker
 from pytribe import *
 import time
-
-# Create your views here.
 
 
 def home(request):
@@ -23,7 +22,7 @@ def create(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Eye Tracker Settings Created')
-            return HttpResponseRedirect(reverse('tracker:detail'))
+            return HttpResponseRedirect(reverse('tracker:detail_tracker'))
     else:
         form = TrackerForm()
 
@@ -50,12 +49,12 @@ def update(request):
 def detail(request):
 
     try:
-        model = Tracker.objects.get(pk=1)
+        object = Tracker.objects.get(pk=1)
     except ObjectDoesNotExist:
         messages.warning(request, "Doesn't exist any eye tracker added.")
         return HttpResponseRedirect(reverse('tracker:create_tracker'))
 
-    return render(request, 'detail.html', {'model': model})
+    return render(request, 'detail.html', {'object': object})
 
 
 def record(request):
@@ -83,7 +82,7 @@ def record(request):
             return HttpResponseRedirect(reverse('tracker:record_tracker'))
 
     except Exception as e:
-        #messages.error(request, str(e))
+        # messages.error(request, str(e))
         pass
 
     return render(request, 'record.html', {'form': form, 'tracker_state': tracker_state})

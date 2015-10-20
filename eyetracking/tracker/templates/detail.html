@@ -17,32 +17,11 @@
     <table class="table table-striped">
         <tr>
             <td><strong>Ip</strong></td>
-            <td>{{ model.ip }}</td>
+            <td>{{ object.ip }}</td>
         </tr>
         <tr>
             <td><strong>Port</strong></td>
-            <td>{{ model.port }}</td>
+            <td>{{ object.port }}</td>
         </tr>
     </table>
-{% endblock %}
-
-{% block body_files %}
-    <script>
-        $(document).ready(function() {
-
-            {% if messages %}
-                {% for message in messages %}
-                    toastr.options = {
-                        closeButton: true,
-                        progressBar: true,
-                        showMethod: 'slideDown',
-                        timeOut: 4000
-                    };
-                    title_message = "{{ message.tags }}";
-                    toastr["{{ message.tags }}"]('{{ message }}', title_message.toUpperCase());
-                {% endfor %}
-            {% endif %}
-
-        });
-    </script>
 {% endblock %}

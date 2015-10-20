@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %} View Image {% endblock %}
+
+{% block menu %}
+    {% include 'menu.html' with active_menu='images' %}
+{% endblock %}
+
+{% block page_title %} View Image {% endblock %}
+
+{% block actions %}
+    <a class="btn btn-primary" href="{% url 'images:update_image' object.id %}" role="button"><i class="glyphicon glyphicon-edit"></i> Update</a>
+    <a class="btn btn-danger delete-link" data-delete-url="{% url 'images:delete_image' object.id %}" role="button"><i class="glyphicon glyphicon-trash"></i> Delete</a>
+{% endblock %}
+
+{% block content %}
+    <table class="table table-striped">
+        <tr>
+            <td><strong>Name</strong></td>
+            <td>{{ object.name }}</td>
+        </tr>
+        <tr>
+            <td><strong>Resolution</strong></td>
+            <td>{{ object.resolution }}</td>
+        </tr>
+        <tr>
+            <td><strong>Size</strong></td>
+            <td>{{ object.size }} MB</td>
+        </tr>
+    </table>
+{% endblock %}
+
+{% block body_files %}
+    <script>$(document).ready(ready_detail("{{ csrf_token }}" ,"{% url 'images:index_images' %}"));</script>
+{% endblock %}
