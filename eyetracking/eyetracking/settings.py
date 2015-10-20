@@ -130,19 +130,23 @@ BOOTSTRAP3 = {
     # The URL to the jQuery JavaScript file
     'jquery_url': '/static/js/theme/jquery.min.js',
 
-    # The complete URL to the Bootstrap CSS file (None means derive it from base_url)
+    # The complete URL to the Bootstrap CSS file (None means derive it from
+    # base_url)
     'css_url': '/static/css/bootstrap/bootstrap.min.css',
 
     # The complete URL to the Bootstrap CSS file (None means no theme)
     'theme_url': '/static/css/bootstrap/bootstrap-theme.min.css',
 
-    # The complete URL to the Bootstrap JavaScript file (None means derive it from base_url)
+    # The complete URL to the Bootstrap JavaScript file (None means derive it
+    # from base_url)
     'javascript_url': '/static/js/bootstrap/bootstrap.min.js',
 
-    # Put JavaScript in the HEAD section of the HTML document (only relevant if you use bootstrap3.html)
+    # Put JavaScript in the HEAD section of the HTML document (only relevant
+    # if you use bootstrap3.html)
     'javascript_in_head': False,
 
-    # Include jQuery with Bootstrap JavaScript (affects django-bootstrap3 template tags)
+    # Include jQuery with Bootstrap JavaScript (affects django-bootstrap3
+    # template tags)
     'include_jquery': True,
 
     # Label class to use in horizontal forms
@@ -166,11 +170,13 @@ BOOTSTRAP3 = {
     # Class to indicate error (better to set this in your Django form)
     'error_css_class': 'has-error',
 
-    # Class to indicate success, meaning the field has valid input (better to set this in your Django form)
+    # Class to indicate success, meaning the field has valid input (better to
+    # set this in your Django form)
     'success_css_class': 'has-success',
 
-    # Renderers (only set these if you have studied the source and understand the inner workings)
-    'formset_renderers':{
+    # Renderers (only set these if you have studied the source and understand
+    # the inner workings)
+    'formset_renderers': {
         'default': 'bootstrap3.renderers.FormsetRenderer',
     },
     'form_renderers': {
