@@ -10,4 +10,6 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/update$', views.update, name='update_image'),
     url(r'^(?P<pk>\d+)/detail$', DetailView.as_view(model=Image, template_name = "images/detail.html"), name="detail_image"),
     url(r'^(?P<pk>\d+)/delete$', views.delete, name='delete_image'),
+    url(r'^upload$', views.upload, name = 'upload_image' ),
+    url(r'^(?P<pk>\d+)/upload_delete$', views.upload_delete, name='upload_delete'),
 ]

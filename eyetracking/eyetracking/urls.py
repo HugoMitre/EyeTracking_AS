@@ -15,6 +15,8 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from tracker import views
+from django.conf.urls.static import static
+from django.conf import settings
 
 
 urlpatterns = [
@@ -22,3 +24,6 @@ urlpatterns = [
     url(r'^tracker/', include('tracker.urls', namespace="tracker")),
     url(r'^images/', include('images.urls', namespace="images")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     #'debug_toolbar',
     'django_tables2',
     'bootstrap3',
+    'jfu',
     # Apps
     'tracker',
     'images'
@@ -66,10 +67,10 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                #'django.core.context_processors.request',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-                #'django.contrib.auth.context_processors.auth',
+                'django.core.context_processors.request',
+                'django.core.context_processors.static',
                 'django.contrib.messages.context_processors.messages',
             ],
         },
@@ -143,7 +144,7 @@ BOOTSTRAP3 = {
     'javascript_in_head': False,
 
     # Include jQuery with Bootstrap JavaScript (affects django-bootstrap3 template tags)
-    'include_jquery': True,
+    'include_jquery': False,
 
     # Label class to use in horizontal forms
     'horizontal_label_class': 'col-md-3',
