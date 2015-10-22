@@ -3,21 +3,14 @@ from uuid_upload_path import upload_to
 from django_resized import ResizedImageField
 
 
-class Image(models.Model):
-
-    name = models.CharField(verbose_name="Name", max_length=200)
-    resolution = models.CharField(verbose_name="Resolution", max_length=100)
-    size = models.IntegerField(verbose_name="Size")
-
-
 class Photo(models.Model):
 
     image = models.ImageField(upload_to=upload_to, height_field='height', width_field='width')
-    resized_image = ResizedImageField(size=[500, 300], quality=90, upload_to=upload_to)
-    original_name = models.CharField(max_length=255, default='default')
-    size = models.CharField(max_length=30, default='')
+    resized_image = ResizedImageField(verbose_name="Photo", size=[150, 150], quality=90, upload_to=upload_to)
+    original_name = models.CharField(verbose_name="Name", max_length=255, default='default')
+    size = models.CharField(verbose_name="Size", max_length=30, default='')
+    width = models.PositiveIntegerField(verbose_name="Resolution", default=0)
     height = models.PositiveIntegerField(default=0)
-    width = models.PositiveIntegerField(default=0)
 
     @classmethod
     def humansize(cls, number_bytes):

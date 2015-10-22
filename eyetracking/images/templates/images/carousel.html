@@ -1,0 +1,29 @@
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="carousel slide" id="carousel2">
+                <ol class="carousel-indicators">
+                    {% for photo in model %}
+                        <li data-slide-to="{{ forloop.counter0 }}" data-target="#carousel2"  class="{% if forloop.counter0 == 0 %}active{% endif %}"></li>
+                    {% endfor %}
+                </ol>
+                <div class="carousel-inner">
+                    {% for photo in model %}
+                        <div class="item {% if forloop.counter0 == 0 %}active{% endif %}">
+                            <img alt="image"  class="img-responsive" src="{{ MEDIA_URL }}{{ photo.image }}">
+                            <div class="carousel-caption">
+                                <p>{{ photo.original_name }} - {{ photo.size }} - {{ photo.width }} x {{ photo.height }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <a data-slide="prev" href="#carousel2" class="left carousel-control">
+                    <span class="icon-prev"></span>
+                </a>
+                <a data-slide="next" href="#carousel2" class="right carousel-control">
+                    <span class="icon-next"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

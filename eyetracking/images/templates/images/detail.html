@@ -16,16 +16,20 @@
 {% block content %}
     <table class="table table-striped">
         <tr>
-            <td><strong>Name</strong></td>
-            <td>{{ object.name }}</td>
+            <td><strong>Photo</strong></td>
+            <td><img class="img-responsive" alt="{{ object.name }}" src="{{ MEDIA_URL }}{{ object.image }}"></td>
         </tr>
         <tr>
-            <td><strong>Resolution</strong></td>
-            <td>{{ object.resolution }}</td>
+            <td><strong>Name</strong></td>
+            <td>{{ object.original_name }}</td>
         </tr>
         <tr>
             <td><strong>Size</strong></td>
-            <td>{{ object.size }} MB</td>
+            <td>{{ object.size }}</td>
+        </tr>
+        <tr>
+            <td><strong>Resolution</strong></td>
+            <td>{{ object.width }} x {{ object.height }}</td>
         </tr>
     </table>
 {% endblock %}
