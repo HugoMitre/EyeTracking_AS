@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Tracker(models.Model):
-    ip = models.CharField(max_length=16)
+    ip = models.GenericIPAddressField()
     port = models.PositiveSmallIntegerField()
 
 
