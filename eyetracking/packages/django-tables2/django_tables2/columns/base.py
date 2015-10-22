@@ -17,6 +17,7 @@ class Library(object):
     """
     A collection of columns.
     """
+
     def __init__(self):
         self.columns = []
 
@@ -276,6 +277,7 @@ class BoundColumn(object):
                                age = tables.Column()
 
     """
+
     def __init__(self, table, column, name):
         self.table = table
         self.column = column
@@ -521,6 +523,7 @@ class BoundColumns(object):
     :type  table: `.Table` object
     :param table: the table containing the columns
     """
+
     def __init__(self, table):
         self.table = table
         self.columns = OrderedDict()

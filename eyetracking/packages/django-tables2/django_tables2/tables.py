@@ -7,10 +7,10 @@ from .utils import (Accessor, AttributeDict, build_request, cached_property,
                     computed_values, OrderBy, OrderByTuple, segment, Sequence)
 import copy
 import sys
-from django.core.paginator       import Paginator
-from django.db.models.fields     import FieldDoesNotExist
-from django.template             import RequestContext
-from django.template.loader      import get_template
+from django.core.paginator import Paginator
+from django.db.models.fields import FieldDoesNotExist
+from django.template import RequestContext
+from django.template.loader import get_template
 from collections import OrderedDict
 import six
 import warnings
@@ -27,11 +27,12 @@ class TableData(object):
     :type   data: `~django.db.query.QuerySet` or `list` of `dict`
     :param table: `.Table` object
     """
+
     def __init__(self, data, table):
         self.table = table
         # data may be a QuerySet-like objects with count() and order_by()
         if (hasattr(data, 'count') and callable(data.count) and
-            hasattr(data, 'order_by') and callable(data.order_by)):
+                hasattr(data, 'order_by') and callable(data.order_by)):
             self.queryset = data
         # otherwise it must be convertable to a list
         else:
@@ -51,7 +52,7 @@ class TableData(object):
             # loading all results into memory. This allows, for example,
             # smart paginators that use len() to perform better.
             self._length = (self.queryset.count() if hasattr(self, 'queryset')
-                                                  else len(self.list))
+                            else len(self.list))
         return self._length
 
     @property
@@ -231,6 +232,7 @@ class TableOptions(object):
     :type  options: `.Table.Meta` on a `.Table`
     """
     # pylint: disable=R0902
+
     def __init__(self, options=None):
         super(TableOptions, self).__init__()
         self.attrs = AttributeDict(getattr(options, "attrs", {}))
@@ -395,7 +397,7 @@ class TableBase(object):
         self.default = default
         self.rows = BoundRows(data=self.data, table=self)
         self.attrs = AttributeDict(computed_values(attrs if attrs is not None
-                                                         else self._meta.attrs))
+                                                   else self._meta.attrs))
         self.empty_text = empty_text if empty_text is not None else self._meta.empty_text
         if sortable is not None:
             warnings.warn("`sortable` is deprecated, use `orderable` instead.",
@@ -581,7 +583,7 @@ class TableBase(object):
     @property
     def orderable(self):
         return (self._orderable if self._orderable is not None
-                                else self._meta.orderable)
+                else self._meta.orderable)
 
     @orderable.setter
     def orderable(self, value):
@@ -602,7 +604,7 @@ class TableBase(object):
     @property
     def template(self):
         return (self._template if self._template is not None
-                               else self._meta.template)
+                else self._meta.template)
 
     @template.setter
     def template(self, value):

@@ -255,16 +255,20 @@ def test_whitespace_is_preserved():
 @pytest.mark.django_db
 def test_as_html_db_queries(transactional_db):
     class PersonTable(tables.Table):
+
         class Meta:
             model = Person
 
     # with queries(count=1):
     #     PersonTable(Person.objects.all()).as_html()
 
+
 @pytest.mark.django_db
 class TestQueries(TransactionTestCase):
+
     def test_as_html_db_queries(self):
         class PersonTable(tables.Table):
+
             class Meta:
                 model = Person
 
@@ -276,6 +280,7 @@ class TestQueries(TransactionTestCase):
         Person.objects.create(first_name="davina", last_name="adisusila")
 
         class PersonTable(tables.Table):
+
             class Meta:
                 model = Person
                 per_page = 1
@@ -305,7 +310,7 @@ def test_localization_check(settings):
     expected_reults = {
         None: '1234.5',
         False: '1234.5',
-        True:  '1 234,5'  # non-breaking space
+        True: '1 234,5'  # non-breaking space
     }
 
     # no localization
@@ -369,7 +374,7 @@ def test_localization_check_in_meta(settings):
     expected_reults = {
         None: '1234.5',
         False: '1234.5',
-        True:  '1{0}234,5'.format(' ')  # non-breaking space
+        True: '1{0}234,5'.format(' ')  # non-breaking space
     }
 
     # No localize

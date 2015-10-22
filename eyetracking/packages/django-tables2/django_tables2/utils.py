@@ -38,6 +38,7 @@ class Sequence(list):
     which is treated as a *catch-all* for column names that aren't explicitly
     specified.
     """
+
     def expand(self, columns):
         """
         Expands the ``"..."`` item in the sequence into the appropriate column
@@ -214,6 +215,7 @@ class OrderByTuple(tuple):
 
         @total_ordering
         class Comparator(object):
+
             def __init__(self, obj):
                 self.obj = obj
 
@@ -372,7 +374,7 @@ class Accessor(str):
                                 ):
                             raise ValueError('Failed lookup for key [%s] in %r'
                                              ', when resolving the accessor %s'
-                                              % (bit, current, self))
+                                             % (bit, current, self))
                 if callable(current):
                     if safe and getattr(current, 'alters_data', False):
                         raise ValueError('refusing to call %s() because `.alters_data = True`'
@@ -397,6 +399,7 @@ class Accessor(str):
 
 A = Accessor  # alias
 
+
 class AttributeDict(dict):
     """
     A wrapper around `dict` that knows how to render itself as HTML
@@ -405,6 +408,7 @@ class AttributeDict(dict):
     The returned string is marked safe, so it can be used safely in a template.
     See `.as_html` for a usage example.
     """
+
     def as_html(self):
         """
         Render to HTML tag attributes.
@@ -429,6 +433,7 @@ class Attrs(dict):
     """
     Backwards compatibility, deprecated.
     """
+
     def __init__(self, *args, **kwargs):
         super(Attrs, self).__init__(*args, **kwargs)
         warnings.warn("Attrs class is deprecated, use dict instead.",
@@ -457,7 +462,7 @@ def segment(sequence, aliases):
     for alias, parts in aliases.items():
         variants = {
             # alias: order by tuple
-            alias:  OrderByTuple(parts),
+            alias: OrderByTuple(parts),
             OrderBy(alias).opposite: OrderByTuple(parts).opposite,
         }
         for valias, vparts in variants.items():
@@ -481,6 +486,7 @@ class cached_property(object):  # pylint: disable=C0103
 
     Taken directly from Django 1.4.
     """
+
     def __init__(self, func):
         from functools import wraps
         wraps(func)(self)
@@ -492,7 +498,7 @@ class cached_property(object):  # pylint: disable=C0103
 
 
 funcs = (name for name in ('getfullargspec', 'getargspec')
-                       if hasattr(inspect, name))
+         if hasattr(inspect, name))
 getargspec = getattr(inspect, next(funcs))
 del funcs
 
@@ -506,22 +512,22 @@ def build_request(uri='/'):
     """
     path, _, querystring = uri.partition('?')
     return WSGIRequest({
-        'CONTENT_TYPE':      'text/html; charset=utf-8',
-        'PATH_INFO':         path,
-        'QUERY_STRING':      querystring,
-        'REMOTE_ADDR':       '127.0.0.1',
-        'REQUEST_METHOD':    'GET',
-        'SCRIPT_NAME':       '',
-        'SERVER_NAME':       'testserver',
-        'SERVER_PORT':       '80',
-        'SERVER_PROTOCOL':   'HTTP/1.1',
-        'wsgi.version':      (1, 0),
-        'wsgi.url_scheme':   'http',
-        'wsgi.input':        FakePayload(b''),
-        'wsgi.errors':       six.StringIO(),
+        'CONTENT_TYPE': 'text/html; charset=utf-8',
+        'PATH_INFO': path,
+        'QUERY_STRING': querystring,
+        'REMOTE_ADDR': '127.0.0.1',
+        'REQUEST_METHOD': 'GET',
+        'SCRIPT_NAME': '',
+        'SERVER_NAME': 'testserver',
+        'SERVER_PORT': '80',
+        'SERVER_PROTOCOL': 'HTTP/1.1',
+        'wsgi.version': (1, 0),
+        'wsgi.url_scheme': 'http',
+        'wsgi.input': FakePayload(b''),
+        'wsgi.errors': six.StringIO(),
         'wsgi.multiprocess': True,
-        'wsgi.multithread':  False,
-        'wsgi.run_once':     False,
+        'wsgi.multithread': False,
+        'wsgi.run_once': False,
     })
 
 

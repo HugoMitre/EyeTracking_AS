@@ -23,6 +23,7 @@ class URLColumn(BaseLinkColumn):
     ``attrs['a']``.
 
     """
+
     def render(self, value):
         return self.render_link(value, value)
 

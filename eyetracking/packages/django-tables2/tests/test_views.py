@@ -12,11 +12,13 @@ class DispatchHookMixin(object):
     """
     Returns a response *and* reference to the view.
     """
+
     def dispatch(self, *args, **kwargs):
         return super(DispatchHookMixin, self).dispatch(*args, **kwargs), self
 
 
 class SimpleTable(tables.Table):
+
     class Meta:
         model = Region
 

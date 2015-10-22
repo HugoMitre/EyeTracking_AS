@@ -11,6 +11,7 @@ def test_should_be_used_for_booleanfield():
         field = models.BooleanField()
 
     class Table(tables.Table):
+
         class Meta:
             model = BoolModel
 
@@ -24,6 +25,7 @@ def test_should_be_used_for_nullbooleanfield():
         field = models.NullBooleanField()
 
     class Table(tables.Table):
+
         class Meta:
             model = NullBoolModel
 

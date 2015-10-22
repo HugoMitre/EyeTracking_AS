@@ -67,6 +67,7 @@ class FormWithFilesView(FormView):
             'file4': fieldfile,
         }
 
+
 class PaginationView(TemplateView):
     template_name = 'demo/pagination.html'
 
@@ -91,4 +92,3 @@ class PaginationView(TemplateView):
 
 class MiscView(TemplateView):
     template_name = 'demo/misc.html'
-

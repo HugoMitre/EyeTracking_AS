@@ -23,8 +23,8 @@ def test_orderbytuple():
     sentinel = object()
     assert obt.get('b', sentinel) is obt['b']  # keying
     assert obt.get('-', sentinel) is sentinel
-    assert obt.get(0,   sentinel) is obt['a']  # indexing
-    assert obt.get(3,   sentinel) is sentinel
+    assert obt.get(0, sentinel) is obt['a']  # indexing
+    assert obt.get(3, sentinel) is sentinel
 
     # .opposite
     assert OrderByTuple(('a', '-b', 'c')).opposite == ('-a', 'b', '-c')

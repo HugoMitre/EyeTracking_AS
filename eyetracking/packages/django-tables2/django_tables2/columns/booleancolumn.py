@@ -26,6 +26,7 @@ class BooleanColumn(Column):
 
     - *span* -- adds attributes to the <span> tag
     """
+
     def __init__(self, null=False, yesno="✔,✘", **kwargs):
         self.yesno = (yesno.split(',') if isinstance(yesno, six.string_types)
                       else tuple(yesno))

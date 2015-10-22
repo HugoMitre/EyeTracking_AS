@@ -171,7 +171,7 @@ BOOTSTRAP3 = {
     'success_css_class': 'has-success',
 
     # Renderers (only set these if you have studied the source and understand the inner workings)
-    'formset_renderers':{
+    'formset_renderers': {
         'default': 'bootstrap3.renderers.FormsetRenderer',
     },
     'form_renderers': {

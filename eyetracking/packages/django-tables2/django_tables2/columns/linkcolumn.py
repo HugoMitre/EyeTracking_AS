@@ -15,6 +15,7 @@ class BaseLinkColumn(Column):
     Adds support for an ``a`` key in *attrs** which is added to the rendered
     ``<a href="...">`` tag.
     """
+
     def __init__(self, attrs=None, *args, **kwargs):
         valid = set(("a", "th", "td", "cell"))
         if attrs and not set(attrs) & set(valid):
@@ -94,6 +95,7 @@ class LinkColumn(BaseLinkColumn):
 
     - *a* -- ``<a>`` elements in ``<td>``.
     """
+
     def __init__(self, viewname, urlconf=None, args=None, kwargs=None,
                  current_app=None, attrs=None, **extra):
         super(LinkColumn, self).__init__(attrs, **extra)

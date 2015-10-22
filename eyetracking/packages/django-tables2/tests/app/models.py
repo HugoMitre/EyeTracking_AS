@@ -12,19 +12,19 @@ class Person(models.Model):
     last_name = models.CharField(max_length=200, verbose_name='surname')
 
     occupation = models.ForeignKey(
-            'Occupation', related_name='people',
-            null=True, verbose_name='occupation')
+        'Occupation', related_name='people',
+        null=True, verbose_name='occupation')
 
     trans_test = models.CharField(
-            max_length=200, blank=True,
-            verbose_name=ugettext("translation test"))
+        max_length=200, blank=True,
+        verbose_name=ugettext("translation test"))
 
     trans_test_lazy = models.CharField(
-            max_length=200, blank=True,
-            verbose_name=ugettext_lazy("translation test lazy"))
+        max_length=200, blank=True,
+        verbose_name=ugettext_lazy("translation test lazy"))
 
     safe = models.CharField(
-            max_length=200, blank=True, verbose_name=mark_safe("<b>Safe</b>"))
+        max_length=200, blank=True, verbose_name=mark_safe("<b>Safe</b>"))
 
     class Meta:
         verbose_name = "person"

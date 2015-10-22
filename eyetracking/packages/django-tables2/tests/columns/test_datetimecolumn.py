@@ -21,6 +21,7 @@ import pytest
 # A -- 'AM' or 'PM'.                        -- 'AM'
 # f -- Time, in 12-hour hours[:minutes]     -- '1', '1:30'
 
+
 @pytest.yield_fixture
 def dt():
     dt = datetime(2012, 9, 11, 12, 30, 0)
@@ -75,6 +76,7 @@ def test_should_be_used_for_datetimefields():
         field = models.DateTimeField()
 
     class Table(tables.Table):
+
         class Meta:
             model = DateTimeModel
 

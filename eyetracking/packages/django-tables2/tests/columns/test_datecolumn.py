@@ -12,6 +12,7 @@ import django_tables2 as tables
 # b -- Month, textual, 3 letters, lowercase -- 'jan'
 # Y -- Year, 4 digits.                      -- '1999'
 
+
 def test_should_handle_explicit_format():
     class TestTable(tables.Table):
         date = tables.DateColumn(format="D b Y")
@@ -60,6 +61,7 @@ def test_should_be_used_for_datefields():
         field = models.DateField()
 
     class Table(tables.Table):
+
         class Meta:
             model = DateModel
 

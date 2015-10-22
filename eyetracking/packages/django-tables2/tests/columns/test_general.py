@@ -13,6 +13,7 @@ from ..utils import parse, warns
 
 def test_column_render_supports_kwargs():
     class TestColumn(tables.Column):
+
         def render(self, **kwargs):
             expected = {"record", "value", "column", "bound_column", "bound_row", "table"}
             actual = set(kwargs.keys())
@@ -197,36 +198,42 @@ def test_sequence():
     assert ["b", "a", "c"] == TestTable([], sequence=("b", "a", "c")).columns.names()
 
     class TestTable2(TestTable):
+
         class Meta:
             sequence = ("b", "a", "c")
     assert ["b", "a", "c"] == TestTable2([]).columns.names()
     assert ["a", "b", "c"] == TestTable2([], sequence=("a", "b", "c")).columns.names()
 
     class TestTable3(TestTable):
+
         class Meta:
             sequence = ("c", )
     assert ["c", "a", "b"] == TestTable3([]).columns.names()
     assert ["c", "a", "b"] == TestTable([], sequence=("c", )).columns.names()
 
     class TestTable4(TestTable):
+
         class Meta:
             sequence = ("...", )
     assert ["a", "b", "c"] == TestTable4([]).columns.names()
     assert ["a", "b", "c"] == TestTable([], sequence=("...", )).columns.names()
 
     class TestTable5(TestTable):
+
         class Meta:
             sequence = ("b", "...")
     assert ["b", "a", "c"] == TestTable5([]).columns.names()
     assert ["b", "a", "c"] == TestTable([], sequence=("b", "...")).columns.names()
 
     class TestTable6(TestTable):
+
         class Meta:
             sequence = ("...", "b")
     assert ["a", "c", "b"] == TestTable6([]).columns.names()
     assert ["a", "c", "b"] == TestTable([], sequence=("...", "b")).columns.names()
 
     class TestTable7(TestTable):
+
         class Meta:
             sequence = ("b", "...", "a")
     assert ["b", "c", "a"] == TestTable7([]).columns.names()

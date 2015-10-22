@@ -47,6 +47,7 @@ def token_kwargs(bits, parser):
 
 
 class SetUrlParamNode(Node):
+
     def __init__(self, changes):
         super(SetUrlParamNode, self).__init__()
         self.changes = changes
@@ -100,6 +101,7 @@ def set_url_param(parser, token):
 
 
 class QuerystringNode(Node):
+
     def __init__(self, updates, removals):
         super(QuerystringNode, self).__init__()
         self.updates = updates
@@ -154,6 +156,7 @@ class RenderTableNode(Node):
     :param template: Name[s] of template to render
     :type  template: unicode or list
     """
+
     def __init__(self, table, template=None):
         super(RenderTableNode, self).__init__()
         self.table = table
@@ -170,6 +173,7 @@ class RenderTableNode(Node):
             # We've been given a queryset, create a table using its model and
             # render that.
             class OnTheFlyTable(tables.Table):
+
                 class Meta:
                     model = queryset.model
                     attrs = {"class": "paleblue"}
@@ -207,6 +211,7 @@ class RenderTableNode(Node):
         finally:
             del table.context
             context.pop()
+
 
 @register.tag
 def render_table(parser, token):
@@ -248,6 +253,7 @@ def render_table(parser, token):
 
 
 class NoSpacelessNode(Node):
+
     def __init__(self, nodelist):
         self.nodelist = nodelist
         super(NoSpacelessNode, self).__init__()
@@ -255,6 +261,7 @@ class NoSpacelessNode(Node):
     def render(self, context):
         return mark_safe(re.sub(r'>\s+<', '>&#32;<',
                                 self.nodelist.render(context)))
+
 
 @register.tag
 def nospaceless(parser, token):

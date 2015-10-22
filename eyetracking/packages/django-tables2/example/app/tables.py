@@ -15,5 +15,6 @@ class CountryTable(tables.Table):
 
 
 class ThemedCountryTable(CountryTable):
+
     class Meta:
         attrs = {'class': 'paleblue'}

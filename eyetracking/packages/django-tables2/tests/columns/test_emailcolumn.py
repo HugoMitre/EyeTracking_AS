@@ -33,6 +33,7 @@ def test_should_be_used_for_datetimefields():
         field = models.EmailField()
 
     class Table(tables.Table):
+
         class Meta:
             model = EmailModel
 

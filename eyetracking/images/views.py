@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django_tables2   import RequestConfig
+from django_tables2 import RequestConfig
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
@@ -18,11 +18,10 @@ def index(request):
     table = ImageTable(Image.objects.all())
     RequestConfig(request, paginate={"per_page": 10}).configure(table)
 
-    return render(request, 'images/index.html', {'table':table})
+    return render(request, 'images/index.html', {'table': table})
 
 
 def add(request):
-
 
     return render(request, 'images/add.html', {})
 
@@ -41,7 +40,7 @@ def update(request, pk):
     else:
         form = ImageForm(None, instance=model)
 
-    return render(request, 'images/update.html', {'form':form})
+    return render(request, 'images/update.html', {'form': form})
 
 
 def delete(request, pk):
@@ -59,7 +58,7 @@ def upload(request):
     image = upload_receive(request)
     size = image.size
 
-    model = Photo(image = image, resized_image = image)
+    model = Photo(image=image, resized_image=image)
     basename = os.path.basename(model.image.path)
     model.original_name = os.path.basename(model.image.path)
     model.size = Photo.humansize(size)
@@ -67,15 +66,14 @@ def upload(request):
 
     thumbnail_name = str(model.resized_image)
 
-
     file_dict = {
-        'name' : basename,
-        'size' : size,
+        'name': basename,
+        'size': size,
 
         'url': settings.MEDIA_URL + thumbnail_name,
         'thumbnailUrl': settings.MEDIA_URL + thumbnail_name,
 
-        'deleteUrl': reverse('images:upload_delete', kwargs = {'pk': model.pk}),
+        'deleteUrl': reverse('images:upload_delete', kwargs={'pk': model.pk}),
         'deleteType': 'POST',
     }
 

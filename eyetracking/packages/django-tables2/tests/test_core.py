@@ -18,6 +18,7 @@ class UnorderedTable(tables.Table):
 
 
 class OrderedTable(UnorderedTable):
+
     class Meta:
         order_by = 'alpha'
 
@@ -94,11 +95,13 @@ def test_metaclass_inheritance():
 
 def test_attrs():
     class TestTable(tables.Table):
+
         class Meta:
             attrs = {}
     assert {} == TestTable([]).attrs
 
     class TestTable2(tables.Table):
+
         class Meta:
             attrs = {"a": "b"}
     assert {"a": "b"} == TestTable2([]).attrs
@@ -109,6 +112,7 @@ def test_attrs():
     assert {"a": "b"} == TestTable3([], attrs={"a": "b"}).attrs
 
     class TestTable4(tables.Table):
+
         class Meta:
             attrs = {"a": "b"}
     assert {"c": "d"} == TestTable4([], attrs={"c": "d"}).attrs
@@ -118,6 +122,7 @@ def test_attrs_support_computed_values():
     counter = itertools.count()
 
     class TestTable(tables.Table):
+
         class Meta:
             attrs = {"id": lambda: "test_table_%d" % next(counter)}
 
@@ -174,22 +179,25 @@ def test_should_support_haystack_data_source():
 def test_data_validation():
     with pytest.raises(ValueError):
         table = OrderedTable(None)
-    
+
     class Bad:
+
         def __len__(self):
             pass
-      
+
     with pytest.raises(ValueError):
         table = OrderedTable(Bad())
 
     class Ok:
+
         def __len__(self):
             return 1
+
         def __getitem__(self, pos):
             if pos != 0:
                 raise IndexError()
             return {'a': 1}
-    
+
     table = OrderedTable(Ok())
     assert len(table.rows) == 1
 
@@ -199,7 +207,7 @@ def test_ordering():
     assert ('alpha', ) == OrderedTable([], order_by=None).order_by == OrderedTable([]).order_by
 
     # values of order_by are wrapped in tuples before being returned
-    assert OrderedTable([], order_by='alpha').order_by   == ('alpha', )
+    assert OrderedTable([], order_by='alpha').order_by == ('alpha', )
     assert OrderedTable([], order_by=('beta',)).order_by == ('beta', )
 
     table = OrderedTable([])
@@ -221,7 +229,7 @@ def test_ordering():
 
     table = OrderedTable([])
     table.order_by = 'alpha'
-    assert ('alpha', ) == OrderedTable([], order_by='alpha').order_by  == table.order_by
+    assert ('alpha', ) == OrderedTable([], order_by='alpha').order_by == table.order_by
 
     # let's check the data
     table = OrderedTable(MEMORY_DATA, order_by='beta')
@@ -267,10 +275,12 @@ def test_ordering():
         tables.Column(sortable=False)
 
         class TestTable4(tables.Table):
+
             class Meta:
                 sortable = True
 
         class TestTable4(tables.Table):
+
             class Meta:
                 sortable = False
 
@@ -295,17 +305,16 @@ def test_ordering_different_types():
     else:
         assert 1 == table.rows[0]['i']
 
-
     table = OrderedTable(data, order_by='beta')
     assert [] == table.rows[0]['beta']
 
 
 def test_multi_column_ordering():
-    brad   = {"first_name": "Bradley", "last_name": "Ayers"}
-    brad2  = {"first_name": "Bradley", "last_name": "Fake"}
-    chris  = {"first_name": "Chris",   "last_name": "Doble"}
-    davina = {"first_name": "Davina",  "last_name": "Adisusila"}
-    ross   = {"first_name": "Ross",    "last_name": "Ayers"}
+    brad = {"first_name": "Bradley", "last_name": "Ayers"}
+    brad2 = {"first_name": "Bradley", "last_name": "Fake"}
+    chris = {"first_name": "Chris", "last_name": "Doble"}
+    davina = {"first_name": "Davina", "last_name": "Adisusila"}
+    ross = {"first_name": "Ross", "last_name": "Ayers"}
 
     people = [brad, brad2, chris, davina, ross]
 
@@ -367,6 +376,7 @@ def test_exclude_columns():
 
     # Table.Meta: exclude=...
     class PartialTable(UnorderedTable):
+
         class Meta:
             exclude = ("alpha", )
     table = PartialTable([])
@@ -381,6 +391,7 @@ def test_exclude_columns():
     # Inheritence -- exclude in child
     class ExcludeTable(UnorderedTable):
         added = tables.Column()
+
         class Meta:
             exclude = ("beta", )
     table = ExcludeTable([])
@@ -488,6 +499,7 @@ def test_prefix():
 
 def test_field_names():
     class TableA(tables.Table):
+
         class Meta:
             order_by_field = "abc"
             page_field = "def"
@@ -501,6 +513,7 @@ def test_field_names():
 
 def test_field_names_with_prefix():
     class TableA(tables.Table):
+
         class Meta:
             order_by_field = "sort"
             page_field = "page"
@@ -513,6 +526,7 @@ def test_field_names_with_prefix():
     assert "1-per_page" == table.prefixed_per_page_field
 
     class TableB(tables.Table):
+
         class Meta:
             order_by_field = "sort"
             page_field = "page"

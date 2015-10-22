@@ -24,7 +24,7 @@ def storage():
 @pytest.yield_fixture
 def column():
     yield tables.FileColumn(attrs={"span": {"class": "span"},
-                                   "a":    {"class": "a"}})
+                                   "a": {"class": "a"}})
 
 
 def test_should_be_used_for_filefields():
@@ -32,6 +32,7 @@ def test_should_be_used_for_filefields():
         field = models.FileField()
 
     class Table(tables.Table):
+
         class Meta:
             model = FileModel
 

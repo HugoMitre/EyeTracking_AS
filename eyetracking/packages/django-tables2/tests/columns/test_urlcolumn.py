@@ -20,6 +20,7 @@ def test_should_be_used_for_urlfields():
         field = models.URLField()
 
     class Table(tables.Table):
+
         class Meta:
             model = URLModel
 

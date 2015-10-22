@@ -23,7 +23,7 @@ def test_unicode():
     dataset = [
         {'pk': 1, 'first_name': 'Brädley', 'last_name': '∆yers'},
         {'pk': 2, 'first_name': 'Chr…s', 'last_name': 'DÒble'},
-        ]
+    ]
 
     table = UnicodeTable(dataset)
     request = build_request('/some-url/')

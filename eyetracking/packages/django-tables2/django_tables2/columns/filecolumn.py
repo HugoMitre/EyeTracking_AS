@@ -30,6 +30,7 @@ class FileColumn(Column):
     If *verify_exists*, the HTML class ``exists`` or ``missing`` is added to
     the element to indicate the integrity of the storage.
     """
+
     def __init__(self, verify_exists=True, **kwargs):
         self.verify_exists = True
         super(FileColumn, self).__init__(**kwargs)

@@ -25,6 +25,7 @@ class RequestConfig(object):
                        the last page.
 
     """
+
     def __init__(self, request, paginate=True):
         self.request = request
         self.paginate = paginate

@@ -394,8 +394,8 @@ class FieldRenderer(BaseRenderer):
 
     def make_input_group(self, html):
         if (
-                    (self.addon_before or self.addon_after) and
-                    isinstance(self.widget, (TextInput, DateInput, Select))
+            (self.addon_before or self.addon_after) and
+            isinstance(self.widget, (TextInput, DateInput, Select))
         ):
             before = '<span class="input-group-addon">{addon}</span>'.format(
                 addon=self.addon_before) if self.addon_before else ''

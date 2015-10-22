@@ -29,12 +29,12 @@ MEDIA_CHOICES = (
         ('vinyl', 'Vinyl'),
         ('cd', 'CD'),
     )
-     ),
+    ),
     ('Video', (
         ('vhs', 'VHS Tape'),
         ('dvd', 'DVD'),
     )
-     ),
+    ),
     ('unknown', 'Unknown'),
 )
 
@@ -148,6 +148,7 @@ def render_field(field, **context_args):
 
 def get_title_from_html(html):
     class GetTitleParser(HTMLParser):
+
         def __init__(self):
             HTMLParser.__init__(self)
             self.title = None
@@ -164,6 +165,7 @@ def get_title_from_html(html):
 
 
 class SettingsTest(TestCase):
+
     def test_settings(self):
         from .bootstrap import BOOTSTRAP3
         self.assertTrue(BOOTSTRAP3)
@@ -205,6 +207,7 @@ class SettingsTest(TestCase):
 
 
 class TemplateTest(TestCase):
+
     def test_empty_template(self):
         res = render_template('')
         self.assertEqual(res.strip(), '')
@@ -235,12 +238,14 @@ class TemplateTest(TestCase):
 
 
 class FormSetTest(TestCase):
+
     def test_illegal_formset(self):
         with self.assertRaises(BootstrapError):
             render_formset(formset='illegal')
 
 
 class FormTest(TestCase):
+
     def test_illegal_form(self):
         with self.assertRaises(BootstrapError):
             render_form(form='illegal')
@@ -292,6 +297,7 @@ class FormTest(TestCase):
 
 
 class FieldTest(TestCase):
+
     def test_illegal_field(self):
         with self.assertRaises(BootstrapError):
             render_field(field='illegal')
@@ -384,6 +390,7 @@ class FieldTest(TestCase):
 
 
 class ComponentsTest(TestCase):
+
     def test_icon(self):
         res = render_template('{% bootstrap_icon "star" %}')
         self.assertEqual(
@@ -408,6 +415,7 @@ class ComponentsTest(TestCase):
 
 
 class MessagesTest(TestCase):
+
     def test_messages(self):
         class FakeMessage(object):
             """
@@ -470,6 +478,7 @@ class MessagesTest(TestCase):
 
 
 class UtilsTest(TestCase):
+
     def test_add_css_class(self):
         css_classes = "one two"
         css_class = "three four"
@@ -500,6 +509,7 @@ class UtilsTest(TestCase):
 
 
 class ButtonTest(TestCase):
+
     def test_button(self):
         res = render_template(
             "{% bootstrap_button 'button' size='lg' %}")
@@ -514,6 +524,7 @@ class ButtonTest(TestCase):
 
 
 class ShowLabelTest(TestCase):
+
     def test_show_label(self):
         form = TestForm()
         res = render_template(

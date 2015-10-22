@@ -30,6 +30,7 @@ class EmailColumn(BaseLinkColumn):
             email = tables.EmailColumn()
 
     """
+
     def render(self, value):
         return self.render_link("mailto:%s" % value, text=value)
 

@@ -39,6 +39,7 @@ class CheckBoxColumn(Column):
     - *th__input* -- Replaces *input* attrs in header cells.
     - *td__input* -- Replaces *input* attrs in body cells.
     """
+
     def __init__(self, attrs=None, **extra):
         # For backwards compatibility, passing in a normal dict effectively
         # should assign attributes to the `<input>` tag.

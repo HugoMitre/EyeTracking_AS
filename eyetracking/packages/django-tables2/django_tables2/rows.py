@@ -65,6 +65,7 @@ class BoundRow(object):
                    object, a `dict`, or something else.
 
     """
+
     def __init__(self, record, table):
         self._record = record
         self._table = table
@@ -126,12 +127,12 @@ class BoundRow(object):
             return bound_column.default
 
         available = {
-            'value':        value,
-            'record':       self.record,
-            'column':       bound_column.column,
+            'value': value,
+            'record': self.record,
+            'column': bound_column.column,
             'bound_column': bound_column,
-            'bound_row':    self,
-            'table':        self._table,
+            'bound_row': self,
+            'table': self._table,
         }
         expected = {}
 
@@ -174,6 +175,7 @@ class BoundRows(object):
 
     This is used for `.Table.rows`.
     """
+
     def __init__(self, data, table):
         self.data = data
         self.table = table

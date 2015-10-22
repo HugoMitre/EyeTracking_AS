@@ -32,6 +32,7 @@ class ContactForm(TestForm):
 
 
 class ContactBaseFormSet(BaseFormSet):
+
     def add_fields(self, form, index):
         super(ContactBaseFormSet, self).add_fields(form, index)
 

@@ -18,7 +18,7 @@ class PersonTable(tables.Table):
 def test_boundrows_iteration():
     occupation = Occupation.objects.create(name='Programmer')
     Person.objects.create(first_name='Bradley', last_name='Ayers', occupation=occupation)
-    Person.objects.create(first_name='Chris',   last_name='Doble', occupation=occupation)
+    Person.objects.create(first_name='Chris', last_name='Doble', occupation=occupation)
 
     table = PersonTable(Person.objects.all())
     records = [row.record for row in table.rows]
@@ -33,6 +33,7 @@ def test_model_table():
     based on the fields.
     """
     class OccupationTable(tables.Table):
+
         class Meta:
             model = Occupation
     assert ["id", "name", "region"] == list(OccupationTable.base_columns.keys())
@@ -54,6 +55,7 @@ def test_model_table():
         m2m = models.ManyToManyField("self")
 
     class ComplexTable(tables.Table):
+
         class Meta:
             model = ComplexModel
     assert ["id", "char", "fk"] == list(ComplexTable.base_columns.keys())
@@ -127,6 +129,7 @@ def test_column_verbose_name():
 
     # Now we'll try using a table with Meta.model
     class PersonTable(tables.Table):
+
         class Meta:
             model = Person
     # Issue #16
@@ -163,6 +166,7 @@ def test_field_choices_used_to_translated_value():
             return self.name
 
     class ArticleTable(tables.Table):
+
         class Meta:
             model = Article
 
@@ -215,6 +219,7 @@ def test_fields_should_implicitly_set_sequence():
 
 def test_model_properties_should_be_useable_for_columns():
     class PersonTable(tables.Table):
+
         class Meta:
             model = Person
             fields = ('name', 'first_name')
@@ -244,6 +249,7 @@ def test_order_by_derived_from_queryset():
     assert PersonTable(queryset.order_by("first_name", "last_name", "-occupation__name")).order_by == ("name", "-occupation")
 
     class PersonTable(PersonTable):
+
         class Meta:
             order_by = ("occupation", )
 
@@ -252,6 +258,7 @@ def test_order_by_derived_from_queryset():
 
 def test_queryset_table_data_supports_ordering():
     class Table(tables.Table):
+
         class Meta:
             model = Person
 
@@ -267,6 +274,7 @@ def test_queryset_table_data_supports_ordering():
 
 def test_doesnotexist_from_accessor_should_use_default():
     class Table(tables.Table):
+
         class Meta:
             model = Person
             default = "abc"
@@ -281,6 +289,7 @@ def test_doesnotexist_from_accessor_should_use_default():
 
 def test_unicode_field_names():
     class Table(tables.Table):
+
         class Meta:
             model = Person
             fields = (six.text_type("first_name"),)

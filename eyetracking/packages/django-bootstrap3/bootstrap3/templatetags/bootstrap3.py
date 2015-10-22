@@ -634,6 +634,7 @@ def bootstrap_buttons(parser, token):
 
 
 class ButtonsNode(template.Node):
+
     def __init__(self, nodelist, args, kwargs, asvar, **kwargs2):
         self.nodelist = nodelist
         self.args = args
