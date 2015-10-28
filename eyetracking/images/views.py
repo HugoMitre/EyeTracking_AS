@@ -17,7 +17,7 @@ def index(request):
 
     model = Photo.objects.all()
     table = PhotoTable(model)
-    RequestConfig(request, paginate={"per_page": 5}).configure(table)
+    RequestConfig(request, paginate={'per_page': 5}).configure(table)
 
     return render(request, 'images/index.html', {'model':model, 'table': table})
 
@@ -64,7 +64,7 @@ def upload(request):
     model = Photo(image=image, resized_image=image)
     basename = os.path.basename(model.image.path)
     model.original_name = os.path.basename(model.image.path)
-    model.size = Photo.humansize(size)
+    model.size = Photo.human_size(size)
     model.save()
 
     file_dict = {

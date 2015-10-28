@@ -1,6 +1,7 @@
 from django.db import models
 from uuid_upload_path import upload_to
 from django_resized import ResizedImageField
+import django_filters
 
 
 class Photo(models.Model):
@@ -13,7 +14,7 @@ class Photo(models.Model):
     height = models.PositiveIntegerField(default=0)
 
     @classmethod
-    def humansize(cls, number_bytes):
+    def human_size(cls, number_bytes):
         suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
         if number_bytes == 0:
             return '0 B'
@@ -23,3 +24,10 @@ class Photo(models.Model):
             i += 1
         f = ('%.2f' % number_bytes).rstrip('0').rstrip('.')
         return '%s %s' % (f, suffixes[i])
+
+
+class PhotoFilter(django_filters.FilterSet):
+
+    class Meta:
+        model = Photo
+        fields = ['original_name']
