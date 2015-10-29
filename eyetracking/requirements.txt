@@ -5,6 +5,7 @@ django-jfu==2.0.9
 django-uuid-upload-path==1.0.0
 django-resized==0.3.5
 django-filter==0.11.0
+django-vanilla-views==1.0.4
 
 
 
