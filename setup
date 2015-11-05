@@ -1,0 +1,14 @@
+#!/bin/bash
+virtualenv venv
+source venv/bin/activate
+pip install -r requirements.txt
+pip install eyetracking/vendor/django-bootstrap3
+pip install eyetracking/vendor/django-tables2
+
+cd eyetracking
+mkdir media 
+# mkdir static_files
+# python manage.py collectstatic
+python manage.py makemigrations
+python manage.py migrate
+echo "Setup Complete."

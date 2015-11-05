@@ -43,8 +43,9 @@ INSTALLED_APPS = (
     'bootstrap3',
     'jfu',
     # Apps
-    'tracker',
-    'images'
+    'apps.tracker',
+    'apps.images',
+    'apps.participants'
 )
 
 MIDDLEWARE_CLASSES = (
