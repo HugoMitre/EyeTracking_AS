@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %} View Participant {% endblock %}
+
+{% block menu %}
+    {% include 'menu.html' with active_menu='participants' %}
+{% endblock %}
+
+{% block page_title %} View Participant {% endblock %}
+
+{% block actions %}
+    <a class="btn btn-primary" href="{% url 'participants:update' object.pk %}" role="button"><i class="glyphicon glyphicon-edit"></i> Update</a>
+
+    <form class="form-inline" method="POST" action="{% url 'participants:delete' object.pk %}">
+        {% csrf_token %}
+        <button onclick="return confirm('Are you sure you want to delete?')" type="submit" class="btn btn-danger tooltip-btn" data-toggle="tooltip" data-placement="top" data-original-title="Delete">
+            <i class="glyphicon glyphicon-trash"></i> Delete
+        </button>
+    </form>
+{% endblock %}
+
+{% block content %}
+    <table class="table table-striped">
+        <tr>
+            <td><strong>Name</strong></td>
+            <td>{{ object.first_name }} {{ object.last_name }}</td>
+        </tr>
+        <tr>
+            <td><strong>Gender</strong></td>
+            <td>{{ object.get_gender_display }}</td>
+        </tr>
+        <tr>
+            <td><strong>Age</strong></td>
+            <td>{{ object.age }}</td>
+        </tr>
+    </table>
+{% endblock %}

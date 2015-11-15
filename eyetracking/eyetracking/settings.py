@@ -43,11 +43,9 @@ INSTALLED_APPS = (
     'bootstrap3',
     'jfu',
     # Apps
-    'tracker',
-    'images',
-    'participants',
-    'django_faker',
-    'django_shotgun'
+    'apps.tracker',
+    'apps.images',
+    'apps.participants'
 )
 
 FAKER_LOCALE = None     # settings.LANGUAGE_CODE is loaded

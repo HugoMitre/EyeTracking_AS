@@ -1,8 +1,0 @@
-[run]
-source =
-    django_tables2
-    tests
-
-
-[html]
-directory = reports/htmlcov

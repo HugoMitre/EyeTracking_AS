@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load render_table from django_tables2 %}
+
+{% block title %} Manage Participants {% endblock %}
+
+{% block menu %}
+    {% include 'menu.html' with active_menu='participants' %}
+{% endblock %}
+
+{% block page_title %} Manage Participants {% endblock %}
+
+{% block actions %}
+    <a class="btn btn-success" href="{% url 'participants:create' %}" role="button"><i class="glyphicon glyphicon-plus"></i> Create</a>
+{% endblock %}
+
+{% block content %}
+    {% render_table table "table.html" %}
+{% endblock %}

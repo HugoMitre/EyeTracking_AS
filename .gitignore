@@ -66,7 +66,7 @@ eyetracking/db.sqlite3
 eyetracking/*/migrations
 
 # Virtual enviroment
-eyetracking/venv
+venv
 
 # Media
 eyetracking/media

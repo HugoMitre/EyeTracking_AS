@@ -14,17 +14,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
 from django.conf.urls import include, url
-from tracker import views
+from apps.tracker import views
 from django.conf.urls.static import static
 from django.conf import settings
 
 
 urlpatterns = [
     url(r'^$', views.home, name='home'),
-    url(r'^tracker/', include('tracker.urls', namespace="tracker")),
-    url(r'^images/', include('images.urls', namespace="images")),
-    url(r'^participants/', include('participants.urls', namespace="participants")),
-    url(r'', include('django_faker.urls')),
+    url(r'^tracker/', include('apps.tracker.urls', namespace="tracker")),
+    url(r'^images/', include('apps.images.urls', namespace="images")),
+    url(r'^participants/', include('apps.participants.urls', namespace="participants")),
 ]
 
 if settings.DEBUG:

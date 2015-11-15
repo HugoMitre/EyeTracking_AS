@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load render_table from django_tables2 %}
+
+{% block title %} Manage Images {% endblock %}
+
+{% block menu %}
+    {% include 'menu.html' with active_menu='images' %}
+{% endblock %}
+
+{% block page_title %} Manage Images {% endblock %}
+
+{% block actions %}
+    <a class="btn btn-success" href="{% url 'images:add_images' %}" role="button"><i class="fa fa-plus"></i> Add</a>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg"><i class="fa fa-picture-o"></i> Preview</button>
+{% endblock %}
+
+{% block content %}
+    {% render_table table "table.html" %}
+    {% include 'images/carousel.html' %}
+{% endblock %}
+
+{% block body_files %}
+    <script>$(document).ready(ready_tables("{{ csrf_token }}" ,"{% url 'images:index_images' %}"));</script>
+{% endblock %}
