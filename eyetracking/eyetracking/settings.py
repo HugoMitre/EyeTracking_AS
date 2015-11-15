@@ -44,8 +44,14 @@ INSTALLED_APPS = (
     'jfu',
     # Apps
     'tracker',
-    'images'
+    'images',
+    'participants',
+    'django_faker',
+    'django_shotgun'
 )
+
+FAKER_LOCALE = None     # settings.LANGUAGE_CODE is loaded
+FAKER_PROVIDERS = None  # faker.DEFAULT_PROVIDERS is loaded (all)
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',

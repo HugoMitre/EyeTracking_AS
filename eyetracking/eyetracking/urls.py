@@ -23,6 +23,8 @@ urlpatterns = [
     url(r'^$', views.home, name='home'),
     url(r'^tracker/', include('tracker.urls', namespace="tracker")),
     url(r'^images/', include('images.urls', namespace="images")),
+    url(r'^participants/', include('participants.urls', namespace="participants")),
+    url(r'', include('django_faker.urls')),
 ]
 
 if settings.DEBUG:
