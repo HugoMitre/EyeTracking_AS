@@ -9,7 +9,7 @@
                     timeOut: 4000
                 };
                 title_message = "{{ message.tags }}";
-                toastr["{{ message.tags }}"]('{{ message|safe  }}', title_message.toUpperCase());
+                toastr["{{ message.tags }}"]("{{ message|safe  }}", title_message.toUpperCase());
             {% endfor %}
         {% endif %}
     });

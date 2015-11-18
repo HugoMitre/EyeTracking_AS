@@ -1,5 +1,6 @@
 {% load bootstrap3 %}
 {% load staticfiles %}
+{% load compress %}
 <!DOCTYPE html>
 <html lang="en">
       <head>
@@ -54,9 +55,12 @@
 
             {% bootstrap_javascript %}
             <script src="{% static 'js/plugins/toastr/toastr.min.js' %}"></script>
+
+            {% compress js %}
             {% bootstrap_messages %}
             <script>$('.tooltip-btn').tooltip();</script>
             <script src="{% static 'js/theme/eye_tracking.js' %}"></script>
             {% block body_files %}{% endblock %}
+            {% endcompress %}
       </body>
 </html>
