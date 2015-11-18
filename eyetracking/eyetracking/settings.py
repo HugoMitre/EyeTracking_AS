@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'django_tables2',
     'bootstrap3',
     'jfu',
+    'compressor',
     # Apps
     'apps.tracker',
     'apps.images',
@@ -110,6 +111,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_files')
+
+COMPRESS_ENABLED = True
 
 STATIC_URL = '/static/'
 
@@ -184,3 +187,10 @@ BOOTSTRAP3 = {
         'inline': 'bootstrap3.renderers.InlineFieldRenderer',
     },
 }
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    # other finders..
+    'compressor.finders.CompressorFinder',
+)
