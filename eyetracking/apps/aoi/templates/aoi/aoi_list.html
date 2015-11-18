@@ -20,21 +20,87 @@
 
 {% block content %}
     {% render_table table "table.html" %}
-    <canvas id="canvas"></canvas>
+    <canvas id="canvas" width="1024" height="768" style="border:1px solid #000000;"></canvas>
 {% endblock %}
 
 {% block body_files %}
+
     <script>
-        // reference canvas element (with id="canvas")
-        var canvasEl = document.getElementById('canvas');
+        var canvas = new fabric.Canvas('canvas');
 
-        // get 2d context to draw on (the "bitmap" mentioned earlier)
-        var ctx = canvasEl.getContext('2d');
+        canvas.setBackgroundImage('http://2.bp.blogspot.com/-LOMh7QaPmjo/UaPqL0K9y6I/AAAAAAAAGjc/rOYfnBnmIYY/s1600/DotA_LoD_Preview1.png', canvas.renderAll.bind(canvas));
 
-        // set fill color of context
-        ctx.fillStyle = 'red';
+        canvas.on('mouse:down', function (option) {
+            if (typeof option.target != "undefined") {
+                return;
+            } else {
+                var startX = option.e.offsetX,
+                    startY = option.e.offsetY;
 
-        // create rectangle at a 100,100 point, with 20x20 dimensions
-        ctx.fillRect(100, 100, 20, 20);
+                var ellipse = new fabric.Ellipse({
+                    rx: 20,
+                    ry: 20,
+                    left: startX,
+                    top: startY,
+                    originX: 'center',
+                    originY: 'center',
+                    fill : 'white',
+                    stroke: 'grey',
+                    strokeWidth: 1.5,
+                    opacity: 0.6,
+                    cornerColor: 'white',
+                    cornerSize: 10,
+                    hasRotatingPoint: false,
+                    hasBorders: false
+                });
+
+                var text = new fabric.Text('AOI', {
+                    fill: 'black',
+                    left: startX,
+                    top: startY,
+                    originX: 'center',
+                    originY: 'center'
+                });
+
+                var group = new fabric.Group([ ellipse, text ], {
+                    left: startX,
+                    top: startY
+                });
+
+                canvas.add(group);
+
+                canvas.on('mouse:move', function (option) {
+                    var e = option.e;
+                    group.set('width', (e.offsetX - startX));
+                    group.set('height', (e.offsetY - startY));
+
+                    group.item(0).set({
+                        rx: group.get('width')/2,
+                        ry: group.get('height')/2
+                    });
+
+                    group.item(1).set({
+                        scaleX:.5,
+                        scaleY:.5
+                    });
+
+                    group.setCoords();
+                });
+            }
+        });
+
+        canvas.on('mouse:up', function () {
+            canvas.off('mouse:move');
+        });
+
+        canvas.on('mouse:over', function(e) {
+            e.target._objects[0].setFill('grey');
+            canvas.renderAll();
+        });
+
+        canvas.on('mouse:out', function(e) {
+            e.target._objects[0].setFill('white');
+            canvas.renderAll();
+        });
     </script>
 {% endblock %}
