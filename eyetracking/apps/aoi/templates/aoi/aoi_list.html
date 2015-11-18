@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load render_table from django_tables2 %}
+
+{% block head_files %}
+    <script src="{% static 'js/plugins/fabric/fabric.min.js' %}"></script>
+{% endblock %}
+
+{% block title %} Manage AOIs {% endblock %}
+
+{% block menu %}
+    {% include 'menu.html' with active_menu='aoi' %}
+{% endblock %}
+
+{% block page_title %} Manage AOIs {% endblock %}
+
+{% block actions %}
+    <a class="btn btn-success" href="{% url 'aoi:create' %}" role="button"><i class="glyphicon glyphicon-plus"></i> Create</a>
+{% endblock %}
+
+{% block content %}
+    {% render_table table "table.html" %}
+    <canvas id="canvas"></canvas>
+{% endblock %}
+
+{% block body_files %}
+    <script>
+        // reference canvas element (with id="canvas")
+        var canvasEl = document.getElementById('canvas');
+
+        // get 2d context to draw on (the "bitmap" mentioned earlier)
+        var ctx = canvasEl.getContext('2d');
+
+        // set fill color of context
+        ctx.fillStyle = 'red';
+
+        // create rectangle at a 100,100 point, with 20x20 dimensions
+        ctx.fillRect(100, 100, 20, 20);
+    </script>
+{% endblock %}
