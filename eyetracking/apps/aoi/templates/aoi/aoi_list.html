@@ -4,6 +4,9 @@
 
 {% block head_files %}
     <script src="{% static 'js/plugins/fabric/fabric.min.js' %}"></script>
+    <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet" type="text/css">
+    <script src="http://code.jquery.com/jquery.js"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
 {% endblock %}
 
 {% block title %} Manage AOIs {% endblock %}
@@ -20,86 +23,44 @@
 
 {% block content %}
     {% render_table table "table.html" %}
-<<<<<<< HEAD
-    <canvas id="canvas" width="500" height="500" style="border:1px dotted #ccc"></canvas><br><br>
-=======
+
+
+     <div class="row">
+         <div class="col-lg-2" >
+             <label>Draw</label><br>
+
+             <button type="button" class="btn btn-default btn-lg glyphicon glyphicon-stop"></button>
+             <button type="button" class="btn btn-default btn-lg glyphicon glyphicon-record"></button>
+             <br><br>
+
+             <label>Select</label><br>
+
+             <button type="button" class="btn btn-default btn-lg glyphicon glyphicon-hand-up"></button>
+             <button type="button" class="btn btn-default btn-lg glyphicon glyphicon-trash"></button>
+         </div>
+
+         <div class="col-lg-10" style="border:1px solid #000000;">
+             <canvas id="canvas2" width="500" height="500" style="border:1px solid #000000;"></canvas>
+         </div>
+     </div>
+
+    <br>
+
     <canvas id="canvas" width="1024" height="768" style="border:1px solid #000000;"></canvas>
->>>>>>> a166a65244d059133664e745d30e2544346a83a8
+
 {% endblock %}
 
 {% block body_files %}
 
     <script>
         // create a wrapper around native canvas element (with id="c")
-
-{#        var canvas = new fabric.Canvas('canvas');#}
-{#        canvas.observe('mouse:down', function(e) { mousedown(e); });#}
-{#        canvas.observe('mouse:move', function(e) { mousemove(e); });#}
-{#        canvas.observe('mouse:up', function(e) { mouseup(e); });#}
-{##}
-{#        var started = false;#}
-{#        var x = 0;#}
-{#        var y = 0;#}
-{##}
-{#        /* Mousedown */#}
-{#        function mousedown(e) {#}
-{#            var mouse = canvas.getPointer(e.e);#}
-{#            started = true;#}
-{#            x = mouse.x;#}
-{#            y = mouse.y;#}
-{##}
-{#            var square = new fabric.Rect({#}
-{#                width: 0,#}
-{#                height: 0,#}
-{#                left: x,#}
-{#                top: y,#}
-{#                fill: 'red'#}
-{#            });#}
-{##}
-{#            canvas.add(square);#}
-{#            canvas.renderAll();#}
-{#            canvas.setActiveObject(square);#}
-{##}
-{#        }#}
-{##}
-{##}
-{#        /* Mousemove */#}
-{#        function mousemove(e) {#}
-{#            if(!started) {#}
-{#                return false;#}
-{#            }#}
-{##}
-{#            var mouse = canvas.getPointer(e.e);#}
-{##}
-{#            var w = Math.abs(mouse.x - x),#}
-{#            h = Math.abs(mouse.y - y);#}
-{##}
-{#            if (!w || !h) {#}
-{#                return false;#}
-{#            }#}
-{##}
-{#            var square = canvas.getActiveObject();#}
-{#            square.set('width', w).set('height', h);#}
-{#            canvas.renderAll();#}
-{#        }#}
-{##}
-{#        /* Mouseup */#}
-{#        function mouseup(e) {#}
-{#            if(started) {#}
-{#                started = false;#}
-{#            }#}
-{##}
-{#            var square = canvas.getActiveObject();#}
-{##}
-{#            canvas.add(square);#}
-{#            canvas.renderAll();#}
-{#         }#}
-
+        
         var canvas = new fabric.Canvas('canvas');
 
         canvas.setBackgroundImage('http://2.bp.blogspot.com/-LOMh7QaPmjo/UaPqL0K9y6I/AAAAAAAAGjc/rOYfnBnmIYY/s1600/DotA_LoD_Preview1.png', canvas.renderAll.bind(canvas));
 
         canvas.on('mouse:down', function (option) {
+            console.log("down");
             if (typeof option.target != "undefined") {
                 return;
             } else {
