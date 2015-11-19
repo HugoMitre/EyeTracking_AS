@@ -1,12 +1,11 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% comment %}
 {% load render_table from django_tables2 %}
+{% endcomment %}
 
 {% block head_files %}
     <script src="{% static 'js/plugins/fabric/fabric.min.js' %}"></script>
-    <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet" type="text/css">
-    <script src="http://code.jquery.com/jquery.js"></script>
-    <script src="bootstrap/js/bootstrap.min.js"></script>
 {% endblock %}
 
 {% block title %} Manage AOIs {% endblock %}
@@ -17,20 +16,23 @@
 
 {% block page_title %} Manage AOIs {% endblock %}
 
+{% comment %}
 {% block actions %}
     <a class="btn btn-success" href="{% url 'aoi:create' %}" role="button"><i class="glyphicon glyphicon-plus"></i> Create</a>
 {% endblock %}
+{% endcomment  %}
 
 {% block content %}
+    {% comment %}
     {% render_table table "table.html" %}
-
+    {% endcomment %}
 
      <div class="row">
          <div class="col-lg-2" >
              <label>Draw</label><br>
 
-             <button type="button" class="btn btn-default btn-lg glyphicon glyphicon-stop"></button>
-             <button type="button" class="btn btn-default btn-lg glyphicon glyphicon-record"></button>
+             <button type="button" class="btn btn-default btn-lg fa fa-square"></button>
+             <button type="button" class="btn btn-default btn-lg fa fa-circle"></button>
              <br><br>
 
              <label>Select</label><br>
@@ -39,14 +41,14 @@
              <button type="button" class="btn btn-default btn-lg glyphicon glyphicon-trash"></button>
          </div>
 
-         <div class="col-lg-10" style="border:1px solid #000000;">
-             <canvas id="canvas2" width="500" height="500" style="border:1px solid #000000;"></canvas>
+         <div class="col-lg-10">
+             <canvas id="canvas" width="1024" height="768" style="border:1px solid #000000;"></canvas>
          </div>
      </div>
 
     <br>
 
-    <canvas id="canvas" width="1024" height="768" style="border:1px solid #000000;"></canvas>
+
 
 {% endblock %}
 
