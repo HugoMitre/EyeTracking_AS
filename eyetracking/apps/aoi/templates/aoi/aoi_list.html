@@ -56,83 +56,145 @@
 
     <script>
         // create a wrapper around native canvas element (with id="c")
-        
-        var canvas = new fabric.Canvas('canvas');
+                var canvas = new fabric.Canvas('canvas');
+                canvas.observe('mouse:down', function(e) { mousedown(e); });
+                canvas.observe('mouse:move', function(e) { mousemove(e); });
+                canvas.observe('mouse:up', function(e) { mouseup(e); });
+
+                var started = false;
+                var x = 0;
+                var y = 0;
+
+                /* Mousedown */
+                function mousedown(e) {
+                    var mouse = canvas.getPointer(e.e);
+                    started = true;
+                    x = mouse.x;
+                    y = mouse.y;
+
+                    var square = new fabric.Rect({
+                        width: 0,
+                        height: 0,
+                        left: x,
+                        top: y,
+                        fill: 'red',
+                        opacity: 0.6
+                    });
+
+                    canvas.add(square);
+                    canvas.renderAll();
+                    canvas.setActiveObject(square);
+
+                }
+
+
+                /* Mousemove */
+                function mousemove(e) {
+                    if(!started) {
+                        return false;
+                    }
+
+                    var mouse = canvas.getPointer(e.e);
+
+                    var w = Math.abs(mouse.x - x),
+                    h = Math.abs(mouse.y - y);
+
+                    if (!w || !h) {
+                        return false;
+                    }
+
+                    var square = canvas.getActiveObject();
+                    square.set('width', w).set('height', h);
+                    canvas.renderAll();
+                }
+
+                /* Mouseup */
+                function mouseup(e) {
+                    if(started) {
+                        started = false;
+                    }
+
+                    var square = canvas.getActiveObject();
+
+                    canvas.add(square);
+                    canvas.renderAll();
+                 }
+{#        var canvas = new fabric.Canvas('canvas');#}
 
         canvas.setBackgroundImage('http://2.bp.blogspot.com/-LOMh7QaPmjo/UaPqL0K9y6I/AAAAAAAAGjc/rOYfnBnmIYY/s1600/DotA_LoD_Preview1.png', canvas.renderAll.bind(canvas));
 
-        canvas.on('mouse:down', function (option) {
-            console.log("down");
-            if (typeof option.target != "undefined") {
-                return;
-            } else {
-                var startX = option.e.offsetX,
-                    startY = option.e.offsetY;
-
-                var ellipse = new fabric.Ellipse({
-                    rx: 20,
-                    ry: 20,
-                    left: startX,
-                    top: startY,
-                    originX: 'center',
-                    originY: 'center',
-                    fill : 'white',
-                    stroke: 'grey',
-                    strokeWidth: 1.5,
-                    opacity: 0.6,
-                    cornerColor: 'white',
-                    cornerSize: 10,
-                    hasRotatingPoint: false,
-                    hasBorders: false
-                });
-
-                var text = new fabric.Text('AOI', {
-                    fill: 'black',
-                    left: startX,
-                    top: startY,
-                    originX: 'center',
-                    originY: 'center'
-                });
-
-                var group = new fabric.Group([ ellipse, text ], {
-                    left: startX,
-                    top: startY
-                });
-
-                canvas.add(group);
-
-                canvas.on('mouse:move', function (option) {
-                    var e = option.e;
-                    group.set('width', (e.offsetX - startX));
-                    group.set('height', (e.offsetY - startY));
-
-                    group.item(0).set({
-                        rx: group.get('width')/2,
-                        ry: group.get('height')/2
-                    });
-
-                    group.item(1).set({
-                        scaleX:.5,
-                        scaleY:.5
-                    });
-
-                    group.setCoords();
-                });
-            }
-        });
-
-        canvas.on('mouse:up', function () {
-            canvas.off('mouse:move');
-        });
-
-        canvas.on('mouse:over', function(e) {
-            e.target._objects[0].setFill('grey');
-            canvas.renderAll();
-        });
-
-        canvas.on('mouse:out', function(e) {
-            e.target._objects[0].setFill('white');
-            canvas.renderAll();
-        });
+{#        canvas.on('mouse:down', function (option) {#}
+{#            console.log("down");#}
+{#            if (typeof option.target != "undefined") {#}
+{#                return;#}
+{#            } else {#}
+{#                var startX = option.e.offsetX,#}
+{#                    startY = option.e.offsetY;#}
+{##}
+{#                var ellipse = new fabric.Ellipse({#}
+{#                    rx: 20,#}
+{#                    ry: 20,#}
+{#                    left: startX,#}
+{#                    top: startY,#}
+{#                    originX: 'center',#}
+{#                    originY: 'center',#}
+{#                    fill : 'white',#}
+{#                    stroke: 'grey',#}
+{#                    strokeWidth: 1.5,#}
+{#                    opacity: 0.6,#}
+{#                    cornerColor: 'white',#}
+{#                    cornerSize: 10,#}
+{#                    hasRotatingPoint: false,#}
+{#                    hasBorders: false#}
+{#                });#}
+{##}
+{#                var text = new fabric.Text('AOI', {#}
+{#                    fill: 'black',#}
+{#                    left: startX,#}
+{#                    top: startY,#}
+{#                    originX: 'center',#}
+{#                    originY: 'center'#}
+{#                });#}
+{##}
+{#                var group = new fabric.Group([ ellipse, text ], {#}
+{#                    left: startX,#}
+{#                    top: startY#}
+{#                });#}
+{##}
+{#                canvas.add(group);#}
+{##}
+{#                canvas.on('mouse:move', function (option) {#}
+{#                    var e = option.e;#}
+{#                    group.set('width', (e.offsetX - startX));#}
+{#                    group.set('height', (e.offsetY - startY));#}
+{##}
+{#                    group.item(0).set({#}
+{#                        rx: group.get('width')/2,#}
+{#                        ry: group.get('height')/2#}
+{#                    });#}
+{##}
+{#                    group.item(1).set({#}
+{#                        scaleX:.5,#}
+{#                        scaleY:.5#}
+{#                    });#}
+{##}
+{#                    group.setCoords();#}
+{#                });#}
+{#            }#}
+{#        });#}
+{##}
+{#        canvas.on('mouse:up', function () {#}
+{#            canvas.off('mouse:move');#}
+{#        });#}
+{##}
+{#        canvas.on('mouse:over', function(e) {#}
+{#            e.target._objects[0].setFill('grey');#}
+{#            canvas.renderAll();#}
+{#        });#}
+{##}
+{#        canvas.on('mouse:out', function(e) {#}
+{#            e.target._objects[0].setFill('white');#}
+{#            canvas.renderAll();#}
+{#        });#}
     </script>
 {% endblock %}
