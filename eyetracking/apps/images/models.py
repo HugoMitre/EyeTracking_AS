@@ -4,7 +4,7 @@ from django_resized import ResizedImageField
 import django_filters
 
 
-class Photo(models.Model):
+class Image(models.Model):
 
     image = models.ImageField(upload_to=upload_to, height_field='height', width_field='width')
     resized_image = ResizedImageField(verbose_name="Photo", size=[150, 150], quality=90, upload_to=upload_to)
@@ -26,8 +26,8 @@ class Photo(models.Model):
         return '%s %s' % (f, suffixes[i])
 
 
-class PhotoFilter(django_filters.FilterSet):
+class ImageFilter(django_filters.FilterSet):
 
     class Meta:
-        model = Photo
+        model = Image
         fields = ['original_name']

@@ -1,6 +1,6 @@
 import django_tables2 as tables
 from django_tables2.utils import A  # alias for Accessor
-from .models import Photo
+from .models import Image
 from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
@@ -11,11 +11,11 @@ class PhotoTable(tables.Table):
     resized_image = tables.Column(orderable=False)
     original_name = tables.LinkColumn('images:detail_image', args=[A('pk')])
     width = tables.Column()
-    actions = tables.Column(orderable=False, empty_values=())
+    actions = tables.TemplateColumn(orderable=False, empty_values=(), template_name='images/actions.html')
     size = tables.Column(orderable=False)
 
     class Meta:
-        model = Photo
+        model = Image
         fields = ('resized_image', 'original_name', 'size', 'width')
 
     def render_resized_image(self, value, record):
@@ -25,12 +25,4 @@ class PhotoTable(tables.Table):
     def render_width(self, record):
         return '%s x %s' % (record.width, record.height)
 
-    def render_actions(self, record):
-        link_edit = reverse("images:update_image", args=[record.pk])
-        link_delete = reverse("images:delete_image", args=[record.pk])
-        btn_edit = '<a class="btn btn-primary btn-sm tooltip-btn" data-toggle="tooltip" data-placement="top" data-original-title="Update" href=' + \
-            link_edit + '><i class="glyphicon glyphicon-edit"></i></a>'
-        btn_delete = '<a class="btn btn-danger btn-sm tooltip-btn delete-link" data-toggle="tooltip" data-placement="top" data-original-title="Delete" data-delete-url=' + \
-            link_delete + '><i class="glyphicon glyphicon-trash"></i></a>'
-        return mark_safe(btn_edit + ' ' + btn_delete)
 
