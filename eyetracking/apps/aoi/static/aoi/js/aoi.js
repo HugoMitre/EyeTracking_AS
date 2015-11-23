@@ -6,6 +6,7 @@ var startCanvas;
 var startEvents;
 var drawShape;
 var mouseDown, mouseMove, mouseUp, mouseOver, mouseOut;
+var deleteShape, keydown;
 
 //Canvas
 var canvas;
@@ -14,14 +15,16 @@ var x = 0;
 var y = 0;
 
 //Buttons
-var btnEllipse;
-var btnRectangle;
+var btnEllipse = $('#btn-ellipse');
+var btnRectangle = $('#btn-rectangle');
+var btnDelete = $('#btn-delete');
+var btnSelect = $('#btn-select');
 
 //Shapes
 var fill = 'white';
 var stroke = 'grey';
 var strokeWidth = 1.5;
-var opacity = 0.4;
+var opacity = 0.5;
 var cornerColor = 'white';
 var cornerSize = 10;
 var hasRotatingPoint = false;
@@ -91,7 +94,7 @@ changeImage = function(idImg, urlImage){
     });
 };
 
-startCanvas = function (idDivCanvas, idCanvas, idBtnRectangle, idBtnEllipse, firstImage){
+startCanvas = function (idDivCanvas, idCanvas, firstImage){
     canvas = new fabric.Canvas(idCanvas);
 
     //Set background image with the first image
@@ -102,10 +105,6 @@ startCanvas = function (idDivCanvas, idCanvas, idBtnRectangle, idBtnEllipse, fir
     var widthCanvas = $(idDivCanvas).width();
     canvas.setDimensions({'width':widthCanvas, 'height':800});
 
-    //Set id to var for buttons
-    btnRectangle = $(idBtnRectangle);
-    btnEllipse = $(idBtnEllipse);
-
     //Events
     startEvents();
 };
@@ -115,9 +114,13 @@ startEvents = function(){
     canvas.on('mouse:over', function (e){ mouseOver(e);});
     canvas.on('mouse:out', function (e){ mouseOut(e);});
 
-    //Shapes
+    //Draw
     btnEllipse.on('click', function(){ drawShape('ellipse');});
     btnRectangle.on('click', function(){ drawShape('rectangle');});
+
+    //Delete
+    btnDelete.on('click', function(){ deleteShape();});
+    $('html').keydown(function(e){ keydown(e);});
 };
 
 drawShape = function (type){
@@ -187,7 +190,6 @@ mouseDown = function (e, shape) {
     y = mouse.y;
 
     shape.set('left', x).set('top', y);
-    canvas.add(shape);
     canvas.renderAll();
     canvas.setActiveObject(shape);
 
@@ -245,5 +247,25 @@ mouseUp = function (e, type) {
     }
     else if (type == 'rectangle'){
         btnRectangle.removeClass('active');
+    }
+};
+
+deleteShape = function(){
+    $(btnDelete).tooltip('hide');
+    activeShape = canvas.getActiveObject();
+
+    if (typeof activeShape !== 'undefined' && activeShape != null){
+         if (confirm('Are you sure you want to delete the aoi selected?')){
+            activeShape.remove();
+            $(btnDelete).removeClass('active');
+        }
+    }
+};
+
+keydown = function (e){
+    if(e.keyCode == 8)
+    {
+        e.preventDefault();
+        deleteShape();
     }
 };

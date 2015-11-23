@@ -33,13 +33,13 @@
          <div class="col-xs-2 col-md-2 well tools-aoi" >
              <div>
                 <label>Draw</label><br>
-                <button id="btnRectangle" type="button" class="btn btn-default btn-lg fa fa-square tooltip-btn" data-toggle="tooltip" data-placement="top" data-original-title="Rectangle"></button>
-                <button id="btnEllipse" type="button" class="btn btn-default btn-lg fa fa-circle tooltip-btn" data-toggle="tooltip" data-placement="top" data-original-title="Ellipse"></button>
+                <button id="btn-rectangle" type="button" class="btn btn-default btn-lg fa fa-square tooltip-btn" data-toggle="tooltip" data-placement="top" data-original-title="Rectangle"></button>
+                <button id="btn-ellipse" type="button" class="btn btn-default btn-lg fa fa-circle tooltip-btn" data-toggle="tooltip" data-placement="top" data-original-title="Ellipse"></button>
              </div>
              <div>
                  <label>Select</label><br>
-                 <button type="button" class="btn btn-default btn-lg fa fa-hand-stop-o tooltip-btn" data-toggle="tooltip" data-placement="top" data-original-title="Select"></button>
-                 <button type="button" class="btn btn-danger btn-lg fa fa-trash tooltip-btn" data-toggle="tooltip" data-placement="top" data-original-title="Delete"></button>
+                 <button id="btn-select" type="button" class="btn btn-default btn-lg fa fa-hand-stop-o tooltip-btn" data-toggle="tooltip" data-placement="top" data-original-title="Select"></button>
+                 <button id="btn-delete" type="button" class="btn btn-danger btn-lg fa fa-trash tooltip-btn" data-toggle="tooltip" data-placement="top" data-original-title="Delete"></button>
              </div>
          </div>
 
@@ -58,7 +58,7 @@
     <script src="{% static 'aoi/js/aoi.js' %}"></script>
     <script>
         slider('.slider');
-        startCanvas('#canvas-image', 'canvas', '#btnRectangle', '#btnEllipse', '{{ first_image }}');
+        startCanvas('#canvas-image', 'canvas', '{{ first_image }}');
         changeImage('.img-slider', '{% url 'aoi:image' %}');
     </script>
 {% endblock %}
