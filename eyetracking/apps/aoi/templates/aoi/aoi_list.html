@@ -1,201 +1,64 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% comment %}
-{% load render_table from django_tables2 %}
-{% endcomment %}
 
 {% block head_files %}
-    <script src="{% static 'js/plugins/fabric/fabric.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'aoi/css/plugins/slick/slick.css' %}"/>
+    <link rel="stylesheet" href="{% static 'aoi/css/plugins/slick/slick-theme.css' %}"/>
+    <link rel="stylesheet" href="{% static 'aoi/css/aoi.css' %}">
 {% endblock %}
 
-{% block title %} Manage AOIs {% endblock %}
+{% block title %} Draw Areas of Interest {% endblock %}
 
 {% block menu %}
     {% include 'menu.html' with active_menu='aoi' %}
 {% endblock %}
 
-{% block page_title %} Manage AOIs {% endblock %}
-
-{% comment %}
-{% block actions %}
-    <a class="btn btn-success" href="{% url 'aoi:create' %}" role="button"><i class="glyphicon glyphicon-plus"></i> Create</a>
-{% endblock %}
-{% endcomment  %}
+{% block page_title %} Draw Areas of Interest {% endblock %}
 
 {% block content %}
-    {% comment %}
-    {% render_table table "table.html" %}
-    {% endcomment %}
     <div class="row">
         <div class="col-lg-12">
-
+            <div class="slider">
+                {% for photo in photos %}
+                    <div class='photo'>
+                      <img id='{{ photo.id }}' class="img-slider" width="auto" height="93px" src="{{ MEDIA_URL }}{{ photo.resized_image }}">
+                      <h6>{{ photo.original_name }}</h6>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
     </div>
 
-     <div class="row">
-         <div class="col-lg-2" >
-             <label>Draw</label><br>
-
-             <button type="button" class="btn btn-default btn-lg fa fa-square"></button>
-             <button type="button" class="btn btn-default btn-lg fa fa-circle"></button>
-             <br><br>
-
-             <label>Select</label><br>
-
-             <button type="button" class="btn btn-default btn-lg glyphicon glyphicon-hand-up"></button>
-             <button type="button" class="btn btn-default btn-lg glyphicon glyphicon-trash"></button>
+    <div class="row">
+         <div class="col-xs-2 col-md-2 well tools-aoi" >
+             <div>
+                <label>Draw</label><br>
+                <button id="btnRectangle" type="button" class="btn btn-default btn-lg fa fa-square tooltip-btn" data-toggle="tooltip" data-placement="top" data-original-title="Rectangle"></button>
+                <button id="btnEllipse" type="button" class="btn btn-default btn-lg fa fa-circle tooltip-btn" data-toggle="tooltip" data-placement="top" data-original-title="Ellipse"></button>
+             </div>
+             <div>
+                 <label>Select</label><br>
+                 <button type="button" class="btn btn-default btn-lg fa fa-hand-stop-o tooltip-btn" data-toggle="tooltip" data-placement="top" data-original-title="Select"></button>
+                 <button type="button" class="btn btn-danger btn-lg fa fa-trash tooltip-btn" data-toggle="tooltip" data-placement="top" data-original-title="Delete"></button>
+             </div>
          </div>
 
-         <div class="col-lg-10">
-             <canvas id="canvas" width="1024" height="768" style="border:1px solid #000000;"></canvas>
+         <div id="canvas-image" class="col-xs-10 col-md-10">
+             <canvas id="canvas"></canvas>
          </div>
-     </div>
+    </div>
+{% endblock %}
 
+{% block body_files_min %}
+    <script src="{% static 'js/plugins/fabric/fabric.min.js' %}"></script>
+    <script src="{% static 'aoi/js/plugins/slick/slick.min.js' %}"></script>
 {% endblock %}
 
 {% block body_files %}
-
+    <script src="{% static 'aoi/js/aoi.js' %}"></script>
     <script>
-        // create a wrapper around native canvas element (with id="c")
-                var canvas = new fabric.Canvas('canvas');
-                canvas.observe('mouse:down', function(e) { mousedown(e); });
-                canvas.observe('mouse:move', function(e) { mousemove(e); });
-                canvas.observe('mouse:up', function(e) { mouseup(e); });
-
-                var started = false;
-                var x = 0;
-                var y = 0;
-
-                /* Mousedown */
-                function mousedown(e) {
-                    var mouse = canvas.getPointer(e.e);
-                    started = true;
-                    x = mouse.x;
-                    y = mouse.y;
-
-                    var square = new fabric.Rect({
-                        width: 0,
-                        height: 0,
-                        left: x,
-                        top: y,
-                        fill: 'red',
-                        opacity: 0.6
-                    });
-
-                    canvas.add(square);
-                    canvas.renderAll();
-                    canvas.setActiveObject(square);
-
-                }
-
-
-                /* Mousemove */
-                function mousemove(e) {
-                    if(!started) {
-                        return false;
-                    }
-
-                    var mouse = canvas.getPointer(e.e);
-
-                    var w = Math.abs(mouse.x - x),
-                    h = Math.abs(mouse.y - y);
-
-                    if (!w || !h) {
-                        return false;
-                    }
-
-                    var square = canvas.getActiveObject();
-                    square.set('width', w).set('height', h);
-                    canvas.renderAll();
-                }
-
-                /* Mouseup */
-                function mouseup(e) {
-                    if(started) {
-                        started = false;
-                    }
-
-                    var square = canvas.getActiveObject();
-
-                    canvas.add(square);
-                    canvas.renderAll();
-                 }
-{#        var canvas = new fabric.Canvas('canvas');#}
-
-        canvas.setBackgroundImage('http://2.bp.blogspot.com/-LOMh7QaPmjo/UaPqL0K9y6I/AAAAAAAAGjc/rOYfnBnmIYY/s1600/DotA_LoD_Preview1.png', canvas.renderAll.bind(canvas));
-
-{#        canvas.on('mouse:down', function (option) {#}
-{#            console.log("down");#}
-{#            if (typeof option.target != "undefined") {#}
-{#                return;#}
-{#            } else {#}
-{#                var startX = option.e.offsetX,#}
-{#                    startY = option.e.offsetY;#}
-{##}
-{#                var ellipse = new fabric.Ellipse({#}
-{#                    rx: 20,#}
-{#                    ry: 20,#}
-{#                    left: startX,#}
-{#                    top: startY,#}
-{#                    originX: 'center',#}
-{#                    originY: 'center',#}
-{#                    fill : 'white',#}
-{#                    stroke: 'grey',#}
-{#                    strokeWidth: 1.5,#}
-{#                    opacity: 0.6,#}
-{#                    cornerColor: 'white',#}
-{#                    cornerSize: 10,#}
-{#                    hasRotatingPoint: false,#}
-{#                    hasBorders: false#}
-{#                });#}
-{##}
-{#                var text = new fabric.Text('AOI', {#}
-{#                    fill: 'black',#}
-{#                    left: startX,#}
-{#                    top: startY,#}
-{#                    originX: 'center',#}
-{#                    originY: 'center'#}
-{#                });#}
-{##}
-{#                var group = new fabric.Group([ ellipse, text ], {#}
-{#                    left: startX,#}
-{#                    top: startY#}
-{#                });#}
-{##}
-{#                canvas.add(group);#}
-{##}
-{#                canvas.on('mouse:move', function (option) {#}
-{#                    var e = option.e;#}
-{#                    group.set('width', (e.offsetX - startX));#}
-{#                    group.set('height', (e.offsetY - startY));#}
-{##}
-{#                    group.item(0).set({#}
-{#                        rx: group.get('width')/2,#}
-{#                        ry: group.get('height')/2#}
-{#                    });#}
-{##}
-{#                    group.item(1).set({#}
-{#                        scaleX:.5,#}
-{#                        scaleY:.5#}
-{#                    });#}
-{##}
-{#                    group.setCoords();#}
-{#                });#}
-{#            }#}
-{#        });#}
-{##}
-{#        canvas.on('mouse:up', function () {#}
-{#            canvas.off('mouse:move');#}
-{#        });#}
-{##}
-{#        canvas.on('mouse:over', function(e) {#}
-{#            e.target._objects[0].setFill('grey');#}
-{#            canvas.renderAll();#}
-{#        });#}
-{##}
-{#        canvas.on('mouse:out', function(e) {#}
-{#            e.target._objects[0].setFill('white');#}
-{#            canvas.renderAll();#}
-{#        });#}
+        slider('.slider');
+        startCanvas('#canvas-image', 'canvas', '#btnRectangle', '#btnEllipse', '{{ first_image }}');
+        changeImage('.img-slider', '{% url 'aoi:image' %}');
     </script>
 {% endblock %}

@@ -16,7 +16,11 @@
             <link href="{% static 'css/font_awesome/font-awesome.min.css' %}" rel="stylesheet">
 
             <script src="{% static 'js/theme/jquery.min.js' %}"></script>
-            {% block head_files %}{% endblock %}
+            {% block head_files_min %}{% endblock %}
+
+            {% compress css %}
+                {% block head_files %}{% endblock %}
+            {% endcompress %}
       </head>
       <body>
             <nav class="navbar navbar-default navbar-static-top">
@@ -55,12 +59,13 @@
 
             {% bootstrap_javascript %}
             <script src="{% static 'js/plugins/toastr/toastr.min.js' %}"></script>
+            {% block body_files_min %}{% endblock %}
 
             {% compress js %}
-            {% bootstrap_messages %}
-            <script>$('.tooltip-btn').tooltip();</script>
-            <script src="{% static 'js/theme/eye_tracking.js' %}"></script>
-            {% block body_files %}{% endblock %}
+                {% bootstrap_messages %}
+                <script>$('.tooltip-btn').tooltip();</script>
+                <script src="{% static 'js/theme/eye_tracking.js' %}"></script>
+                {% block body_files %}{% endblock %}
             {% endcompress %}
       </body>
 </html>

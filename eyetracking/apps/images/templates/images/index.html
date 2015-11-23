@@ -18,7 +18,3 @@
     {% render_table table "table.html" %}
     {% include 'images/carousel.html' %}
 {% endblock %}
-
-{% block body_files %}
-    <script>$(document).ready(ready_tables("{{ csrf_token }}" ,"{% url 'images:index_images' %}"));</script>
-{% endblock %}

@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
-from .models import Photo
+from .models import Image
 from .tables import PhotoTable
 from .forms import PhotoForm
 import os
@@ -15,7 +15,7 @@ from jfu.http import upload_receive, UploadResponse, JFUResponse
 
 def index(request):
 
-    model = Photo.objects.all()
+    model = Image.objects.all()
     table = PhotoTable(model)
     RequestConfig(request, paginate={'per_page': 5}).configure(table)
 
@@ -29,7 +29,7 @@ def add(request):
 
 def update(request, pk):
 
-    model = get_object_or_404(Photo, pk=pk)
+    model = get_object_or_404(Image, pk=pk)
 
     if request.method == 'POST':
         form = PhotoForm(data=request.POST, instance=model)
@@ -46,7 +46,7 @@ def update(request, pk):
 
 def delete(request, pk):
 
-    model = get_object_or_404(Photo, pk=pk)
+    model = get_object_or_404(Image, pk=pk)
     model.delete()
     os.unlink(model.image.path)
     os.unlink(model.resized_image.path)
@@ -61,10 +61,10 @@ def upload(request):
     image = upload_receive(request)
     size = image.size
 
-    model = Photo(image=image, resized_image=image)
+    model = Image(image=image, resized_image=image)
     basename = os.path.basename(model.image.path)
     model.original_name = os.path.basename(model.image.path)
-    model.size = Photo.human_size(size)
+    model.size = Image.human_size(size)
     model.save()
 
     file_dict = {
@@ -86,11 +86,11 @@ def upload_delete(request, pk):
 
     success = True
     try:
-        model = Photo.objects.get(pk=pk)
+        model = Image.objects.get(pk=pk)
         os.unlink(model.image.path)
         os.unlink(model.resized_image.path)
         model.delete()
-    except Photo.DoesNotExist:
+    except Image.DoesNotExist:
         success = False
 
     return JFUResponse(request, success)
