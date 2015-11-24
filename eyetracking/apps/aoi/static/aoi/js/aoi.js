@@ -6,19 +6,23 @@ var startCanvas;
 var startEvents;
 var drawShape;
 var mouseDown, mouseMove, mouseUp, mouseOver, mouseOut;
-var deleteShape, keydown;
+var deleteShape, keyDown;
+var beforeSelectionCleared;
+var moveShapes;
+var activateShapes;
 
 //Canvas
 var canvas;
 var started = false;
 var x = 0;
 var y = 0;
+var isMoving = false;
 
 //Buttons
 var btnEllipse = $('#btn-ellipse');
 var btnRectangle = $('#btn-rectangle');
 var btnDelete = $('#btn-delete');
-var btnSelect = $('#btn-select');
+var btnMove = $('#btn-move');
 
 //Shapes
 var fill = 'white';
@@ -120,12 +124,24 @@ startEvents = function(){
 
     //Delete
     btnDelete.on('click', function(){ deleteShape();});
-    $('html').keydown(function(e){ keydown(e);});
+    $('html').keydown(function(e){ keyDown(e);});
+
+    //Before selection cleared
+    canvas.on('before:selection:cleared', function (e){ beforeSelectionCleared(e);});
+
+    //Move
+    btnMove.on('click', function(){ moveShapes();});
 };
 
 drawShape = function (type){
 
     canvas.defaultCursor = 'crosshair';
+
+    //Remove active move button
+    if (isMoving){
+        isMoving = false;
+        $(btnMove).tooltip('hide').removeClass('active');
+    }
 
     if (type == 'ellipse'){
         $(btnEllipse).tooltip('hide').addClass('active');
@@ -189,7 +205,9 @@ mouseDown = function (e, shape) {
     x = mouse.x;
     y = mouse.y;
 
+    //Set mouse coordinates
     shape.set('left', x).set('top', y);
+    canvas.add(shape);
     canvas.renderAll();
     canvas.setActiveObject(shape);
 
@@ -234,6 +252,7 @@ mouseUp = function (e, type) {
 
     var shape = canvas.getActiveObject();
     canvas.add(shape);
+    canvas.remove(shape);
     canvas.renderAll();
 
     canvas.off('mouse:down');
@@ -248,11 +267,14 @@ mouseUp = function (e, type) {
     else if (type == 'rectangle'){
         btnRectangle.removeClass('active');
     }
+
+    //After draw allow move the shapes
+    moveShapes();
 };
 
 deleteShape = function(){
     $(btnDelete).tooltip('hide');
-    activeShape = canvas.getActiveObject();
+    var activeShape = canvas.getActiveObject();
 
     if (typeof activeShape !== 'undefined' && activeShape != null){
          if (confirm('Are you sure you want to delete the aoi selected?')){
@@ -262,10 +284,36 @@ deleteShape = function(){
     }
 };
 
-keydown = function (e){
+keyDown = function (e){
     if(e.keyCode == 8)
     {
         e.preventDefault();
         deleteShape();
     }
+};
+
+beforeSelectionCleared = function(e){
+    var activeShape = canvas.getActiveObject();
+    activeShape.selectable = false;
+};
+
+moveShapes = function (){
+    $(btnMove).tooltip('hide');
+    if (isMoving){
+        isMoving = false;
+        $(btnMove).removeClass('active');
+        canvas.discardActiveObject();
+        activateShapes(false);
+    }
+    else{
+        isMoving = true;
+        $(btnMove).addClass('active');
+        activateShapes(true);
+    }
+};
+
+activateShapes = function(valueSelectable){
+    canvas.getObjects().map(function(shape) {
+        return shape.set('selectable', valueSelectable);
+    });
 };
