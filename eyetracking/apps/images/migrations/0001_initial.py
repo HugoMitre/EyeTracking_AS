@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Photo',
+            name='Image',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('image', models.ImageField(height_field=b'height', width_field=b'width', upload_to=uuid_upload_path.storage.upload_to)),
