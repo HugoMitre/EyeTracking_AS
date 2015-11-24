@@ -293,8 +293,10 @@ keyDown = function (e){
 };
 
 beforeSelectionCleared = function(e){
-    var activeShape = canvas.getActiveObject();
-    activeShape.selectable = false;
+    if (isMoving == false) {
+        var activeShape = canvas.getActiveObject();
+        activeShape.selectable = false;
+    }
 };
 
 moveShapes = function (){
