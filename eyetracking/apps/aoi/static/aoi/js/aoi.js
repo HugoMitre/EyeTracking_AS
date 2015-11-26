@@ -34,6 +34,12 @@ var cornerSize = 10;
 var hasRotatingPoint = false;
 var hasBorders = false;
 
+//Shape name
+var ungroup, items;
+var name_left=0;
+var name_top=0;
+
+
 
 getCookie = function (name) {
     var cookieValue = null;
@@ -115,8 +121,8 @@ startCanvas = function (idDivCanvas, idCanvas, firstImage){
 
 startEvents = function(){
     //Hover
-    canvas.on('mouse:over', function (e){ mouseOver(e);});
-    canvas.on('mouse:out', function (e){ mouseOut(e);});
+    //canvas.on('mouse:over', function (e){ mouseOver(e);});
+    //canvas.on('mouse:out', function (e){ mouseOut(e);});
 
     //Draw
     btnEllipse.on('click', function(){ drawShape('ellipse');});
@@ -253,7 +259,27 @@ mouseUp = function (e, type) {
     var shape = canvas.getActiveObject();
     canvas.add(shape);
     canvas.remove(shape);
+
+    var name = new fabric.IText('AOI name (Tap and Type)', {
+        fontFamily: 'arial black',
+        left: shape.left,
+        top: shape.top + shape.height,
+        fontSize: 20
+    });
+
+    group = new fabric.Group([ shape, name ], {
+    });
+
+    canvas.remove(shape);
+    canvas.add(group);
     canvas.renderAll();
+
+    group.on('mousedown', fabricDblClick(group, function (obj) {
+            ungroup(group);
+            canvas.setActiveObject(items[1]);
+            items[1].enterEditing();
+            items[1].selectAll();
+            }));
 
     canvas.off('mouse:down');
     canvas.off('mouse:move');
@@ -319,3 +345,57 @@ activateShapes = function(valueSelectable){
         return shape.set('selectable', valueSelectable);
     });
 };
+
+// Double-click event handler
+    var fabricDblClick = function (obj, handler) {
+        return function () {
+            if (obj.clicked) {
+                handler(obj);
+            }
+            else {
+                obj.clicked = true;
+                setTimeout(function () {
+                    obj.clicked = false;
+                }, 500);
+            }
+        };
+    };
+
+// ungroup objects in group
+    ungroup = function (group) {
+        items = group._objects;
+        group._restoreObjectsState();
+        canvas.remove(group);
+        for (var i = 0; i < items.length; i++) {
+            canvas.add(items[i]);
+        }
+        // if you have disabled render on addition
+        canvas.renderAll();
+    };
+
+
+// Re-group when text editing finishes
+    var name = new fabric.IText('AOI name (Tap and Type)', {
+        fontFamily: 'arial black',
+        left: name_left,
+        top: name_top,
+        fontSize: 20
+    });
+
+    name.on('editing:exited', function () {
+        console.log('editing finished')
+        //var items = [];
+        //canvas2.forEachObject(function (obj) {
+        //    items.push(obj);
+        //    canvas2.remove(obj);
+        //});
+        //var grp = new fabric.Group(items.reverse(), {});
+        //canvas2.add(grp);
+        //grp.on('mousedown', fabricDblClick(grp, function (obj) {
+        //    ungroup(grp);
+        //    canvas2.setActiveObject(name);
+        //    name.enterEditing();
+        //    name.selectAll();
+        //}));
+    });
+
