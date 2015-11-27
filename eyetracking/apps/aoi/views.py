@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.conf import settings
-from vanilla import CreateView, DetailView, UpdateView, RedirectView, TemplateView
+from vanilla import CreateView, UpdateView, RedirectView, TemplateView
 from apps.images.models import Image
 from .forms import AOIForm
 from .models import AOI
@@ -29,10 +29,6 @@ class AOICreate(SuccessMessageMixin, CreateView):
     template_name_suffix = '_create'
     success_url = reverse_lazy('aoi:list')
     success_message = "%(name)s was created successfully"
-
-
-class AOIDetail(DetailView):
-    model = AOI
 
 
 class AOIUpdate(SuccessMessageMixin, UpdateView):
