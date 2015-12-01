@@ -7,10 +7,10 @@ class AOI(models.Model):
 
     image = models.ForeignKey(Image)
     name = models.CharField(verbose_name="Name", max_length=255)
-    top = models.PositiveSmallIntegerField()
-    left = models.PositiveSmallIntegerField()
-    height = models.PositiveSmallIntegerField()
-    width = models.PositiveSmallIntegerField()
+    top = models.DecimalField(max_digits=20, decimal_places=2)
+    left = models.DecimalField(max_digits=20, decimal_places=2)
+    height = models.DecimalField(max_digits=20, decimal_places=2)
+    width = models.DecimalField(max_digits=20, decimal_places=2)
     TYPE_CHOICES = (
         ('rect', 'Rectangle'),
         ('ellipse', 'Ellipse'),

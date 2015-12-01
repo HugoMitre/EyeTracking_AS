@@ -59,7 +59,7 @@
     <script src="{% static 'aoi/js/aoi.js' %}"></script>
     <script>
         slider('.slider');
-        startCanvas('#canvas-image', 'canvas', '{{ first_image }}');
+        startCanvas('#canvas-image', 'canvas', '{{ first_image }}', '{% url 'aoi:create' %}', '/update/');
         changeImage('.img-slider', '{% url 'aoi:image' %}');
     </script>
 {% endblock %}

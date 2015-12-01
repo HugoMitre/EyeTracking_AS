@@ -1,13 +1,14 @@
 from django.core.urlresolvers import reverse_lazy
-from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
+from django.http import HttpResponse
 from django.conf import settings
 from vanilla import CreateView, UpdateView, RedirectView, TemplateView
 from apps.images.models import Image
 from .forms import AOIForm
 from .models import AOI
+import json
 
 
 class AOIList(TemplateView):
@@ -15,28 +16,50 @@ class AOIList(TemplateView):
 
     def get_context_data(self, **kwargs):
         first_image = ''
+        id_first_image = ''
         images = Image.objects.all()
 
         if (images):
             first_image = settings.MEDIA_URL + images[0].image.name
+            id_first_image = images[0].pk
 
-        return {'photos': images, 'first_image': first_image}
+        return {'photos': images, 'first_image': first_image, 'id_first_image':id_first_image}
 
 
-class AOICreate(SuccessMessageMixin, CreateView):
+class AjaxableResponseMixin(object):
+    def render_to_json_response(self, context, **response_kwargs):
+        data = json.dumps(context)
+        response_kwargs['content_type'] = 'application/json'
+        return HttpResponse(data, **response_kwargs)
+
+    def form_invalid(self, form):
+        response = super(AjaxableResponseMixin, self).form_invalid(form)
+        if self.request.is_ajax():
+            return self.render_to_json_response(form.errors, status=400)
+        else:
+            return response
+
+    def form_valid(self, form):
+        response = super(AjaxableResponseMixin, self).form_valid(form)
+        if self.request.is_ajax():
+            data = {
+                'pk': self.object.pk,
+            }
+            return self.render_to_json_response(data)
+        else:
+            return response
+
+
+class AOICreate(AjaxableResponseMixin, CreateView):
     model = AOI
     form_class = AOIForm
-    template_name_suffix = '_create'
-    success_url = reverse_lazy('aoi:list')
-    success_message = "%(name)s was created successfully"
+    success_url = ' '
 
 
-class AOIUpdate(SuccessMessageMixin, UpdateView):
+class AOIUpdate(AjaxableResponseMixin, UpdateView):
     model = AOI
     form_class = AOIForm
-    template_name_suffix = '_update'
-    success_url = reverse_lazy('aoi:list')
-    success_message = "%(name)s was updated successfully"
+    success_url = ' '
 
 
 class AOIDelete(RedirectView):

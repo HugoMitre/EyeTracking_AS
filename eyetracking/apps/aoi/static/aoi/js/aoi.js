@@ -5,11 +5,14 @@ var changeImage;
 var startCanvas;
 var startEvents;
 var drawShape;
-var mouseDown, mouseMove, mouseUp, mouseOver, mouseOut;
+var mouseOver, mouseOut, mouseDown, mouseMove, mouseUp;
+var updateShape;
+var getShapeInfo;
 var deleteShape, keyDown;
-var beforeSelectionCleared;
 var moveShapes;
 var activateShapes;
+var saveShape;
+var setUrls;
 
 //Canvas
 var canvas;
@@ -33,12 +36,12 @@ var cornerColor = 'white';
 var cornerSize = 10;
 var hasRotatingPoint = false;
 var hasBorders = false;
+var urlCreate, urlUpdate;
 
 //Shape name
 var ungroup, items;
 var name_left=0;
 var name_top=0;
-
 
 
 getCookie = function (name) {
@@ -104,7 +107,7 @@ changeImage = function(idImg, urlImage){
     });
 };
 
-startCanvas = function (idDivCanvas, idCanvas, firstImage){
+startCanvas = function (idDivCanvas, idCanvas, firstImage, urlCreate, urlUpdate){
     canvas = new fabric.Canvas(idCanvas);
 
     //Set background image with the first image
@@ -117,12 +120,15 @@ startCanvas = function (idDivCanvas, idCanvas, firstImage){
 
     //Events
     startEvents();
+
+    //Set urls for create and update shapes
+    setUrls(urlCreate, urlUpdate);
 };
 
 startEvents = function(){
     //Hover
-    //canvas.on('mouse:over', function (e){ mouseOver(e);});
-    //canvas.on('mouse:out', function (e){ mouseOut(e);});
+    canvas.on('mouse:over', function (e){ mouseOver(e);});
+    canvas.on('mouse:out', function (e){ mouseOut(e);});
 
     //Draw
     btnEllipse.on('click', function(){ drawShape('ellipse');});
@@ -132,24 +138,28 @@ startEvents = function(){
     btnDelete.on('click', function(){ deleteShape();});
     $('html').keydown(function(e){ keyDown(e);});
 
-    //Before selection cleared
-    canvas.on('before:selection:cleared', function (e){ beforeSelectionCleared(e);});
-
     //Move
     btnMove.on('click', function(){ moveShapes();});
 };
 
 drawShape = function (type){
 
+    //Set crosshair cursor
     canvas.defaultCursor = 'crosshair';
 
     //Remove active move button
     if (isMoving){
         isMoving = false;
+
+        //Hide tootip and set button active
         $(btnMove).tooltip('hide').removeClass('active');
+
+        //Off update shape (mouseUpMoveShape)
+        canvas.off('mouse:up');
     }
 
     if (type == 'ellipse'){
+        //Hide tootip and set button active
         $(btnEllipse).tooltip('hide').addClass('active');
 
         var shapeEllipse = new fabric.Ellipse({
@@ -172,6 +182,7 @@ drawShape = function (type){
         canvas.on('mouse:up', function (e){ mouseUp(e, 'ellipse')});
     }
     else if (type == 'rectangle'){
+        //Hide tootip and set button active
         $(btnRectangle).tooltip('hide').addClass('active');
 
         var shapeRectangle = new fabric.Rect({
@@ -212,7 +223,9 @@ mouseDown = function (e, shape) {
     y = mouse.y;
 
     //Set mouse coordinates
-    shape.set('left', x).set('top', y);
+    shape.set({
+        'left': x,
+        'top': y});
     canvas.add(shape);
     canvas.renderAll();
     canvas.setActiveObject(shape);
@@ -257,9 +270,19 @@ mouseUp = function (e, type) {
     }
 
     var shape = canvas.getActiveObject();
-    canvas.add(shape);
+
+    //Remove old shape
     canvas.remove(shape);
 
+    //Set new shape
+    canvas.add(shape);
+    canvas.setActiveObject(shape);
+
+    //Get info and save
+    dataShape = getShapeInfo(shape);
+    saveShape(urlCreate, dataShape, true);
+
+    /*
     var name = new fabric.IText('AOI name (Tap and Type)', {
         fontFamily: 'arial black',
         left: shape.left,
@@ -280,7 +303,9 @@ mouseUp = function (e, type) {
             items[1].enterEditing();
             items[1].selectAll();
             }));
+    */
 
+    //Off events
     canvas.off('mouse:down');
     canvas.off('mouse:move');
     canvas.off('mouse:up');
@@ -296,6 +321,43 @@ mouseUp = function (e, type) {
 
     //After draw allow move the shapes
     moveShapes();
+
+    //Save changes of shapes
+    canvas.on('mouse:up', function(e){ updateShape(e); });
+};
+
+updateShape = function(e){
+    if (typeof e.target !== "undefined"){
+        var token = getCookie('csrftoken');
+        var dataShape = {
+            csrfmiddlewaretoken:token,
+            image: 1,
+            name:'test',
+            top: e.target.get('top').toFixed(2),
+            left: e.target.get('left').toFixed(2),
+            width:e.target.getWidth().toFixed(2),
+            height:e.target.getHeight().toFixed(2),
+            type: e.target.get('type')
+        };
+
+        saveShape(e.target.get('id')+ urlUpdate, dataShape, false);
+    }
+};
+
+getShapeInfo = function(shape){
+    var token = getCookie('csrftoken');
+    var data = shape.toJSON();
+
+    return dataShape = {
+        csrfmiddlewaretoken:token,
+        image: 1,
+        name:'test',
+        top:data.top,
+        left: data.left,
+        width:data.width,
+        height:data.height,
+        type:data.type
+    };
 };
 
 deleteShape = function(){
@@ -318,13 +380,6 @@ keyDown = function (e){
     }
 };
 
-beforeSelectionCleared = function(e){
-    if (isMoving == false) {
-        var activeShape = canvas.getActiveObject();
-        activeShape.selectable = false;
-    }
-};
-
 moveShapes = function (){
     $(btnMove).tooltip('hide');
     if (isMoving){
@@ -342,60 +397,77 @@ moveShapes = function (){
 
 activateShapes = function(valueSelectable){
     canvas.getObjects().map(function(shape) {
+        console.log(shape);
         return shape.set('selectable', valueSelectable);
     });
 };
 
-// Double-click event handler
-    var fabricDblClick = function (obj, handler) {
-        return function () {
-            if (obj.clicked) {
-                handler(obj);
-            }
-            else {
-                obj.clicked = true;
-                setTimeout(function () {
-                    obj.clicked = false;
-                }, 500);
-            }
-        };
-    };
-
-// ungroup objects in group
-    ungroup = function (group) {
-        items = group._objects;
-        group._restoreObjectsState();
-        canvas.remove(group);
-        for (var i = 0; i < items.length; i++) {
-            canvas.add(items[i]);
+saveShape = function(url, data, isNew){
+    $.post(url, data).done(function(e) {
+        var shape = canvas.getActiveObject();
+        if (isNew) {
+            shape.set('id', e.pk);
         }
-        // if you have disabled render on addition
-        canvas.renderAll();
-    };
-
-
-// Re-group when text editing finishes
-    var name = new fabric.IText('AOI name (Tap and Type)', {
-        fontFamily: 'arial black',
-        left: name_left,
-        top: name_top,
-        fontSize: 20
+    }).fail(function() {
+        toastr.error('The request was unsuccessful', 'Error');
     });
+};
 
-    name.on('editing:exited', function () {
-        console.log('editing finished')
-        //var items = [];
-        //canvas2.forEachObject(function (obj) {
-        //    items.push(obj);
-        //    canvas2.remove(obj);
-        //});
-        //var grp = new fabric.Group(items.reverse(), {});
-        //canvas2.add(grp);
-        //grp.on('mousedown', fabricDblClick(grp, function (obj) {
-        //    ungroup(grp);
-        //    canvas2.setActiveObject(name);
-        //    name.enterEditing();
-        //    name.selectAll();
-        //}));
-    });
+setUrls = function(urlNew, urlModify){
+    urlCreate = urlNew;
+    urlUpdate = urlModify;
+};
+
+//// Double-click event handler
+//    var fabricDblClick = function (obj, handler) {
+//        return function () {
+//            if (obj.clicked) {
+//                handler(obj);
+//            }
+//            else {
+//                obj.clicked = true;
+//                setTimeout(function () {
+//                    obj.clicked = false;
+//                }, 500);
+//            }
+//        };
+//    };
+//
+//// ungroup objects in group
+//    ungroup = function (group) {
+//        items = group._objects;
+//        group._restoreObjectsState();
+//        canvas.remove(group);
+//        for (var i = 0; i < items.length; i++) {
+//            canvas.add(items[i]);
+//        }
+//        // if you have disabled render on addition
+//        canvas.renderAll();
+//    };
+//
+//
+//// Re-group when text editing finishes
+//    var name = new fabric.IText('AOI name (Tap and Type)', {
+//        fontFamily: 'arial black',
+//        left: name_left,
+//        top: name_top,
+//        fontSize: 20
+//    });
+//
+//    name.on('editing:exited', function () {
+//        console.log('editing finished')
+//        //var items = [];
+//        //canvas2.forEachObject(function (obj) {
+//        //    items.push(obj);
+//        //    canvas2.remove(obj);
+//        //});
+//        //var grp = new fabric.Group(items.reverse(), {});
+//        //canvas2.add(grp);
+//        //grp.on('mousedown', fabricDblClick(grp, function (obj) {
+//        //    ungroup(grp);
+//        //    canvas2.setActiveObject(name);
+//        //    name.enterEditing();
+//        //    name.selectAll();
+//        //}));
+//    });
 
