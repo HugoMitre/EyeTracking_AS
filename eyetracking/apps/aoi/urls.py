@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/update/$', views.AOIUpdate.as_view(), name='update'),
     url(r'^(?P<pk>\d+)/delete/$', views.AOIDelete.as_view(), name='delete'),
     url(r'^image/$', views.AOIGetUrlImage.as_view(), name='image'),
+    url(r'^shapes/$', views.AOIGetShapes.as_view(), name='shapes'),
 ]

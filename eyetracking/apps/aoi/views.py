@@ -1,14 +1,13 @@
 from django.core.urlresolvers import reverse_lazy
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
-from django.http import HttpResponse
+from django.http import JsonResponse, HttpResponse
+from django.core import serializers
 from django.conf import settings
 from vanilla import CreateView, UpdateView, RedirectView, TemplateView
 from apps.images.models import Image
 from .forms import AOIForm
 from .models import AOI
-import json
 
 
 class AOIList(TemplateView):
@@ -27,10 +26,12 @@ class AOIList(TemplateView):
 
 
 class AjaxableResponseMixin(object):
+
     def render_to_json_response(self, context, **response_kwargs):
-        data = json.dumps(context)
-        response_kwargs['content_type'] = 'application/json'
-        return HttpResponse(data, **response_kwargs)
+        return JsonResponse(
+            context,
+            **response_kwargs
+        )
 
     def form_invalid(self, form):
         response = super(AjaxableResponseMixin, self).form_invalid(form)
@@ -87,6 +88,10 @@ class JSONResponseMixin(object):
             **response_kwargs
         )
 
+    def render_to_http_response(self, context, **response_kwargs):
+
+        return HttpResponse(self.get_data(context), content_type='application/json')
+
     def get_data(self, context):
         """
         Returns an object that will be serialized as JSON by json.dumps().
@@ -101,10 +106,23 @@ class JSONResponseMixin(object):
 class AOIGetUrlImage(JSONResponseMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
-        id = self.request.GET.get('id')
+        id = self.request.GET.get('image_id')
         model = get_object_or_404(Image, pk=id)
-        return {'urlPhoto': settings.MEDIA_URL+model.image.name}
+        return {'id':id, 'urlPhoto': settings.MEDIA_URL+model.image.name}
 
     def render_to_response(self, context, **response_kwargs):
         return self.render_to_json_response(context, **response_kwargs)
+
+
+class AOIGetShapes(JSONResponseMixin, TemplateView):
+
+    def get_context_data(self, **kwargs):
+        image_id = self.request.GET.get('image_id')
+        model = AOI.objects.filter(image=image_id)
+        serialized_queryset = serializers.serialize('json', model)
+        return serialized_queryset
+
+    def render_to_response(self, context, **response_kwargs):
+        response_kwargs['safe'] = False
+        return self.render_to_http_response(context, **response_kwargs)
 

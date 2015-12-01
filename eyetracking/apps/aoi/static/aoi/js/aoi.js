@@ -13,6 +13,9 @@ var moveShapes;
 var activateShapes;
 var saveShape;
 var setUrls;
+var loadShapes;
+var createRect;
+var createEllipse;
 
 //Canvas
 var canvas;
@@ -20,6 +23,7 @@ var started = false;
 var x = 0;
 var y = 0;
 var isMoving = false;
+var isDrawing = false;
 
 //Buttons
 var btnEllipse = $('#btn-ellipse');
@@ -36,7 +40,10 @@ var cornerColor = 'white';
 var cornerSize = 10;
 var hasRotatingPoint = false;
 var hasBorders = false;
-var urlCreate, urlUpdate;
+var urlCreate = 'new/';
+var urlUpdate = '/update/';
+var urlLoadShapes = 'shapes/';
+var activeImage;
 
 //Shape name
 var ungroup, items;
@@ -99,20 +106,26 @@ changeImage = function(idImg, urlImage){
     $(idImg).on('click', function(){
         var id = $(this).attr('id');
         var token = getCookie('csrftoken');
-        $.get(urlImage, {'id':id, 'csrfmiddlewaretoken':token}).done(function( data ) {
+        $.get(urlImage, {'image_id':id}).done(function(data){
+            activeImage = data.id;
+            canvas.clear();
             canvas.setBackgroundImage(data.urlPhoto, canvas.renderAll.bind(canvas));
+            loadShapes(activeImage);
         }).fail(function() {
             toastr.error('The request was unsuccessful', 'Error');
         });
     });
 };
 
-startCanvas = function (idDivCanvas, idCanvas, firstImage, urlCreate, urlUpdate){
+startCanvas = function (idDivCanvas, idCanvas, idFirstImage, firstImage){
     canvas = new fabric.Canvas(idCanvas);
 
     //Set background image with the first image
-    if (firstImage)
+    if (firstImage) {
+        activeImage = idFirstImage;
         canvas.setBackgroundImage(firstImage, canvas.renderAll.bind(canvas));
+        loadShapes(idFirstImage);
+    }
 
     //Dimensions
     var widthCanvas = $(idDivCanvas).width();
@@ -120,9 +133,6 @@ startCanvas = function (idDivCanvas, idCanvas, firstImage, urlCreate, urlUpdate)
 
     //Events
     startEvents();
-
-    //Set urls for create and update shapes
-    setUrls(urlCreate, urlUpdate);
 };
 
 startEvents = function(){
@@ -147,7 +157,7 @@ drawShape = function (type){
     //Set crosshair cursor
     canvas.defaultCursor = 'crosshair';
 
-    //Remove active move button
+    //If is selected the button to move
     if (isMoving){
         isMoving = false;
 
@@ -158,24 +168,24 @@ drawShape = function (type){
         canvas.off('mouse:up');
     }
 
+    //If is selected the button to draw
+    if (isDrawing){
+        $(btnRectangle).removeClass('active');
+        $(btnEllipse).removeClass('active');
+
+        canvas.off('mouse:down');
+        canvas.off('mouse:move');
+        canvas.off('mouse:up');
+    }
+
+    isDrawing = true;
+
+    //Draw shape
     if (type == 'ellipse'){
         //Hide tootip and set button active
         $(btnEllipse).tooltip('hide').addClass('active');
 
-        var shapeEllipse = new fabric.Ellipse({
-            rx: 0,
-            ry: 0,
-            left: x,
-            top: y,
-            fill : fill,
-            stroke: stroke,
-            strokeWidth: strokeWidth,
-            opacity: opacity,
-            cornerColor: cornerColor,
-            cornerSize: cornerSize,
-            hasRotatingPoint: hasRotatingPoint,
-            hasBorders: hasBorders
-        });
+        var shapeEllipse = new createEllipse({'width':0, 'height':0, 'left':x, 'top':y});
 
         canvas.on('mouse:down', function (e){ mouseDown(e, shapeEllipse)});
         canvas.on('mouse:move', function (e){ mouseMove(e, 'ellipse')});
@@ -185,20 +195,7 @@ drawShape = function (type){
         //Hide tootip and set button active
         $(btnRectangle).tooltip('hide').addClass('active');
 
-        var shapeRectangle = new fabric.Rect({
-            width: 0,
-            height: 0,
-            left: x,
-            top: y,
-            fill : fill,
-            stroke: stroke,
-            strokeWidth: strokeWidth,
-            opacity: opacity,
-            cornerColor: cornerColor,
-            cornerSize: cornerSize,
-            hasRotatingPoint: hasRotatingPoint,
-            hasBorders: hasBorders
-        });
+        var shapeRectangle = createRect({'width':0, 'height':0, 'left':x, 'top':y});
 
         canvas.on('mouse:down', function (e){ mouseDown(e, shapeRectangle)});
         canvas.on('mouse:move', function (e){ mouseMove(e, 'rectangle')});
@@ -229,7 +226,6 @@ mouseDown = function (e, shape) {
     canvas.add(shape);
     canvas.renderAll();
     canvas.setActiveObject(shape);
-
 };
 
 mouseMove = function (e, type) {
@@ -319,44 +315,66 @@ mouseUp = function (e, type) {
         btnRectangle.removeClass('active');
     }
 
+    isDrawing = false;
+
     //After draw allow move the shapes
     moveShapes();
-
-    //Save changes of shapes
-    canvas.on('mouse:up', function(e){ updateShape(e); });
 };
 
 updateShape = function(e){
-    if (typeof e.target !== "undefined"){
+    var shape = canvas.getActiveObject();
+
+    if (shape !== null) {
         var token = getCookie('csrftoken');
+        var type = shape.get('type');
+        var width, height;
+
+        if (type == 'rect'){
+            width = shape.getWidth().toFixed(2);
+            height = shape.getHeight().toFixed(2);
+        }else if (type == 'ellipse'){
+            width = shape.getRx().toFixed(2);
+            height = shape.getRy().toFixed(2);
+        }
+
         var dataShape = {
-            csrfmiddlewaretoken:token,
-            image: 1,
-            name:'test',
-            top: e.target.get('top').toFixed(2),
-            left: e.target.get('left').toFixed(2),
-            width:e.target.getWidth().toFixed(2),
-            height:e.target.getHeight().toFixed(2),
-            type: e.target.get('type')
+            csrfmiddlewaretoken: token,
+            image: activeImage,
+            name: 'test',
+            top: shape.get('top').toFixed(2),
+            left: shape.get('left').toFixed(2),
+            width: width,
+            height: height,
+            type: type
         };
 
-        saveShape(e.target.get('id')+ urlUpdate, dataShape, false);
+        saveShape(shape.get('id') + urlUpdate, dataShape, false);
     }
 };
 
 getShapeInfo = function(shape){
     var token = getCookie('csrftoken');
     var data = shape.toJSON();
+    var width, height;
+    var type = data.type;
+
+    if (type == 'rect'){
+        width = data.width;
+        height = data.height;
+    }else if (type == 'ellipse'){
+        width = data.rx;
+        height = data.ry;
+    }
 
     return dataShape = {
         csrfmiddlewaretoken:token,
-        image: 1,
+        image: activeImage,
         name:'test',
         top:data.top,
-        left: data.left,
-        width:data.width,
-        height:data.height,
-        type:data.type
+        left:data.left,
+        width:width,
+        height:height,
+        type:type
     };
 };
 
@@ -382,6 +400,10 @@ keyDown = function (e){
 
 moveShapes = function (){
     $(btnMove).tooltip('hide');
+
+    //Save changes of shapes
+    canvas.on('mouse:up', function(e){ updateShape(e); });
+
     if (isMoving){
         isMoving = false;
         $(btnMove).removeClass('active');
@@ -397,7 +419,6 @@ moveShapes = function (){
 
 activateShapes = function(valueSelectable){
     canvas.getObjects().map(function(shape) {
-        console.log(shape);
         return shape.set('selectable', valueSelectable);
     });
 };
@@ -413,9 +434,63 @@ saveShape = function(url, data, isNew){
     });
 };
 
-setUrls = function(urlNew, urlModify){
-    urlCreate = urlNew;
-    urlUpdate = urlModify;
+loadShapes = function(idImage){
+    $.getJSON(urlLoadShapes, {image_id:idImage})
+    .done(function(e) {
+        $.each(e, function( index, value ) {
+            var type = value.fields.type;
+            var data = {'id':value.pk, 'width':value.fields.width, 'height':value.fields.height, 'top':value.fields.top, 'left':value.fields.left};
+            var shape;
+
+            if (type == 'rect')
+                shape = createRect(data);
+            else if (type == 'ellipse')
+                shape = createEllipse(data);
+
+            canvas.add(shape);
+        });
+        canvas.renderAll();
+    }).fail(function() {
+        toastr.error('The request was unsuccessful', 'Error');
+    });
+};
+
+createRect = function(data){
+    return new fabric.Rect({
+            id: data.id,
+            width: parseFloat(data.width),
+            height: parseFloat(data.height),
+            left: parseFloat(data.left),
+            top: parseFloat(data.top),
+            fill : fill,
+            stroke: stroke,
+            strokeWidth: strokeWidth,
+            opacity: opacity,
+            cornerColor: cornerColor,
+            cornerSize: cornerSize,
+            hasRotatingPoint: hasRotatingPoint,
+            hasBorders: hasBorders,
+            selectable: false
+    });
+};
+
+createEllipse = function(data){
+   return new fabric.Ellipse({
+        id: data.id,
+        rx: parseFloat(data.width),
+        ry: parseFloat(data.height),
+        left: parseFloat(data.left),
+        top: parseFloat(data.top),
+        fill : fill,
+        stroke: stroke,
+        strokeWidth: strokeWidth,
+        opacity: opacity,
+        cornerColor: cornerColor,
+        cornerSize: cornerSize,
+        hasRotatingPoint: hasRotatingPoint,
+        hasBorders: hasBorders,
+        selectable: false
+    });
 };
 
 //// Double-click event handler
