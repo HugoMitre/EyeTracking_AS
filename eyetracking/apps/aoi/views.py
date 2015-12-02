@@ -1,10 +1,8 @@
-from django.core.urlresolvers import reverse_lazy
-from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.core import serializers
 from django.conf import settings
-from vanilla import CreateView, UpdateView, RedirectView, TemplateView
+from vanilla import CreateView, UpdateView, TemplateView
 from apps.images.models import Image
 from .forms import AOIForm
 from .models import AOI
@@ -63,18 +61,6 @@ class AOIUpdate(AjaxableResponseMixin, UpdateView):
     success_url = ' '
 
 
-class AOIDelete(RedirectView):
-    model = AOI
-
-    def get_redirect_url(self, *args, **kwargs):
-        self.url = reverse_lazy('aoi:list')
-        model = get_object_or_404(AOI, pk=kwargs['pk'])
-        name = model.name
-        model.delete()
-        messages.success(self.request, name + ' was deleted successfully')
-        return super(AOIDelete, self).get_redirect_url(*args, **kwargs)
-
-
 class JSONResponseMixin(object):
     """
     A mixin that can be used to render a JSON response.
@@ -125,4 +111,20 @@ class AOIGetShapes(JSONResponseMixin, TemplateView):
     def render_to_response(self, context, **response_kwargs):
         response_kwargs['safe'] = False
         return self.render_to_http_response(context, **response_kwargs)
+
+
+class AOIDelete(JSONResponseMixin, TemplateView):
+
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data()
+        print  context
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        id =  self.kwargs['pk']
+        AOI.objects.filter(id=id).delete()
+        return {'success':True}
+
+    def render_to_response(self, context, **response_kwargs):
+        return self.render_to_json_response(context, **response_kwargs)
 

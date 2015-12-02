@@ -42,6 +42,7 @@ var hasRotatingPoint = false;
 var hasBorders = false;
 var urlCreate = 'new/';
 var urlUpdate = '/update/';
+var urlDelete = '/delete/';
 var urlLoadShapes = 'shapes/';
 var activeImage;
 
@@ -105,7 +106,6 @@ slider = function(idSlider){
 changeImage = function(idImg, urlImage){
     $(idImg).on('click', function(){
         var id = $(this).attr('id');
-        var token = getCookie('csrftoken');
         $.get(urlImage, {'image_id':id}).done(function(data){
             activeImage = data.id;
             canvas.clear();
@@ -164,7 +164,7 @@ drawShape = function (type){
         //Hide tootip and set button active
         $(btnMove).tooltip('hide').removeClass('active');
 
-        //Off update shape (mouseUpMoveShape)
+        //Off update shape
         canvas.off('mouse:up');
     }
 
@@ -275,7 +275,7 @@ mouseUp = function (e, type) {
     canvas.setActiveObject(shape);
 
     //Get info and save
-    dataShape = getShapeInfo(shape);
+    dataShape = getShapeInfo();
     saveShape(urlCreate, dataShape, true);
 
     /*
@@ -321,71 +321,53 @@ mouseUp = function (e, type) {
     moveShapes();
 };
 
-updateShape = function(e){
+getShapeInfo = function(){
     var shape = canvas.getActiveObject();
-
-    if (shape !== null) {
-        var token = getCookie('csrftoken');
-        var type = shape.get('type');
-        var width, height;
-
-        if (type == 'rect'){
-            width = shape.getWidth().toFixed(2);
-            height = shape.getHeight().toFixed(2);
-        }else if (type == 'ellipse'){
-            width = shape.getRx().toFixed(2);
-            height = shape.getRy().toFixed(2);
-        }
-
-        var dataShape = {
-            csrfmiddlewaretoken: token,
-            image: activeImage,
-            name: 'test',
-            top: shape.get('top').toFixed(2),
-            left: shape.get('left').toFixed(2),
-            width: width,
-            height: height,
-            type: type
-        };
-
-        saveShape(shape.get('id') + urlUpdate, dataShape, false);
-    }
-};
-
-getShapeInfo = function(shape){
     var token = getCookie('csrftoken');
-    var data = shape.toJSON();
+    var type = shape.get('type');
     var width, height;
-    var type = data.type;
 
     if (type == 'rect'){
-        width = data.width;
-        height = data.height;
+        width = shape.getWidth().toFixed(2);
+        height = shape.getHeight().toFixed(2);
     }else if (type == 'ellipse'){
-        width = data.rx;
-        height = data.ry;
+        width = shape.getRx().toFixed(2);
+        height = shape.getRy().toFixed(2);
     }
 
-    return dataShape = {
-        csrfmiddlewaretoken:token,
+    var dataShape = {
+        csrfmiddlewaretoken: token,
         image: activeImage,
-        name:'test',
-        top:data.top,
-        left:data.left,
-        width:width,
-        height:height,
-        type:type
+        name: 'test',
+        top: shape.get('top').toFixed(2),
+        left: shape.get('left').toFixed(2),
+        width: width,
+        height: height,
+        type: type
     };
+
+    var id = shape.get('id');
+
+    if (id !== 'undefined')
+        dataShape['id']=id;
+
+    return dataShape
 };
 
 deleteShape = function(){
     $(btnDelete).tooltip('hide');
-    var activeShape = canvas.getActiveObject();
+    var shape = canvas.getActiveObject();
 
-    if (typeof activeShape !== 'undefined' && activeShape != null){
+    if (typeof shape !== 'undefined' && shape != null){
          if (confirm('Are you sure you want to delete the aoi selected?')){
-            activeShape.remove();
-            $(btnDelete).removeClass('active');
+             var token = getCookie('csrftoken');
+             var id = shape.get('id');
+             $.post(id + urlDelete, {csrfmiddlewaretoken: token}).done(function(e) {
+                 shape.remove();
+             }).fail(function() {
+                toastr.error('The request was unsuccessful', 'Error');
+             });
+             $(btnDelete).removeClass('active');
         }
     }
 };
@@ -402,7 +384,10 @@ moveShapes = function (){
     $(btnMove).tooltip('hide');
 
     //Save changes of shapes
-    canvas.on('mouse:up', function(e){ updateShape(e); });
+    canvas.on('mouse:up', function(e){
+        dataShape = getShapeInfo();
+        saveShape(dataShape.id + urlUpdate, dataShape, true);
+    });
 
     if (isMoving){
         isMoving = false;
@@ -456,6 +441,12 @@ loadShapes = function(idImage){
 };
 
 createRect = function(data){
+
+    var selectable = false;
+
+    if (isMoving)
+        selectable = true;
+
     return new fabric.Rect({
             id: data.id,
             width: parseFloat(data.width),
@@ -470,12 +461,17 @@ createRect = function(data){
             cornerSize: cornerSize,
             hasRotatingPoint: hasRotatingPoint,
             hasBorders: hasBorders,
-            selectable: false
+            selectable: selectable
     });
 };
 
 createEllipse = function(data){
-   return new fabric.Ellipse({
+    var selectable = false;
+
+    if (isMoving)
+        selectable = true;
+
+    return new fabric.Ellipse({
         id: data.id,
         rx: parseFloat(data.width),
         ry: parseFloat(data.height),
@@ -489,7 +485,7 @@ createEllipse = function(data){
         cornerSize: cornerSize,
         hasRotatingPoint: hasRotatingPoint,
         hasBorders: hasBorders,
-        selectable: false
+        selectable: selectable
     });
 };
 
