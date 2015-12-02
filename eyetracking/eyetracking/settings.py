@@ -47,7 +47,8 @@ INSTALLED_APPS = (
     'apps.tracker',
     'apps.images',
     'apps.participants',
-    'apps.aoi'
+    'apps.aoi',
+    'apps.aoi2'
 )
 
 FAKER_LOCALE = None     # settings.LANGUAGE_CODE is loaded
