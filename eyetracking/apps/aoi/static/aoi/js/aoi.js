@@ -6,6 +6,7 @@ var startCanvas;
 var startEvents;
 var drawShape;
 var mouseOver, mouseOut, mouseDown, mouseMove, mouseUp;
+var finishDraw;
 var getShapeInfo;
 var deleteShape, keyDown;
 var moveShapes;
@@ -18,7 +19,6 @@ var setMinSize;
 
 //Canvas
 var canvas;
-var started = false;
 var x = 0;
 var y = 0;
 var isMoving = false;
@@ -48,11 +48,6 @@ var urlLoadShapes = 'shapes/';
 var activeImage;
 var minWidth = 30;
 var minHeight = 30;
-
-//Shape name
-var ungroup, items;
-var name_left=0;
-var name_top=0;
 
 
 getCookie = function (name) {
@@ -182,8 +177,6 @@ drawShape = function (type){
         canvas.off('mouse:up');
     }
 
-    isDrawing = true;
-
     //Draw shape
     if (type == 'ellipse'){
         //Hide tootip and set button active
@@ -219,7 +212,7 @@ mouseOut = function (e){
 
 mouseDown = function (e, shape) {
     var mouse = canvas.getPointer(e.e);
-    started = true;
+    isDrawing = true;
     x = mouse.x;
     y = mouse.y;
 
@@ -233,42 +226,38 @@ mouseDown = function (e, shape) {
 };
 
 mouseMove = function (e, type) {
-    if(!started) {
+    if(!isDrawing) {
         return false;
     }
 
     var mouse = canvas.getPointer(e.e);
     var shape = canvas.getActiveObject();
-    var w, h;
+    var width, height;
 
     if (type == 'ellipse'){
-        w = Math.abs(mouse.x - x)/2;
-        h = Math.abs(mouse.y - y)/2;
+        width = Math.abs(mouse.x - x)/2;
+        height = Math.abs(mouse.y - y)/2;
 
-        if (!w || !h) {
+        if (!width || !height) {
             return false;
         }
 
-        shape.set('rx', w).set('ry', h);
+        shape.set('rx', width).set('ry', height);
     }
     else if (type == 'rectangle'){
-        w = Math.abs(mouse.x - x);
-        h = Math.abs(mouse.y - y);
+        width = Math.abs(mouse.x - x);
+        height = Math.abs(mouse.y - y);
 
-        if (!w || !h) {
+        if (!width || !height) {
             return false;
         }
-        shape.set('width', w).set('height', h);
+        shape.set('width', width).set('height', height);
     }
 
     canvas.renderAll();
 };
 
 mouseUp = function (e, type) {
-    if(started) {
-        started = false;
-    }
-
     var shape = canvas.getActiveObject();
 
     //Remove old shape
@@ -285,36 +274,23 @@ mouseUp = function (e, type) {
     dataShape = getShapeInfo();
     saveShape(urlCreate, dataShape, true);
 
-    /*
-    var name = new fabric.IText('AOI name (Tap and Type)', {
-        fontFamily: 'arial black',
-        left: shape.left,
-        top: shape.top + shape.height,
-        fontSize: 20
-    });
+    //Actions when finish to draw
+    finishDraw(type);
 
-    group = new fabric.Group([ shape, name ], {
-    });
+    //After draw allow move the shapes
+    moveShapes();
+};
 
-    canvas.remove(shape);
-    canvas.add(group);
-    canvas.renderAll();
-
-    group.on('mousedown', fabricDblClick(group, function (obj) {
-            ungroup(group);
-            canvas.setActiveObject(items[1]);
-            items[1].enterEditing();
-            items[1].selectAll();
-            }));
-    */
-
+finishDraw = function(type){
     //Off events
     canvas.off('mouse:down');
     canvas.off('mouse:move');
     canvas.off('mouse:up');
 
+    //Set default cursor
     canvas.defaultCursor = 'default';
 
+    //Remove active button
     if (type == 'ellipse'){
         btnEllipse.removeClass('active');
     }
@@ -322,10 +298,9 @@ mouseUp = function (e, type) {
         btnRectangle.removeClass('active');
     }
 
-    isDrawing = false;
-
-    //After draw allow move the shapes
-    moveShapes();
+    if(isDrawing) {
+        isDrawing = false;
+    }
 };
 
 getShapeInfo = function(){
@@ -355,9 +330,8 @@ getShapeInfo = function(){
 
     //If has id add to dataShape
     var id = shape.get('id');
-
     if (id !== 'undefined')
-        dataShape['id']=id;
+        dataShape['id'] = id;
 
     return dataShape;
 };
@@ -439,10 +413,12 @@ loadShapes = function(idImage){
             var data = {'id':value.pk, 'width':value.fields.width, 'height':value.fields.height, 'top':value.fields.top, 'left':value.fields.left};
             var shape;
 
-            if (type == 'rect')
+            if (type == 'rect'){
                 shape = createRect(data);
-            else if (type == 'ellipse')
+            }
+            else if (type == 'ellipse') {
                 shape = createEllipse(data);
+            }
 
             canvas.add(shape);
         });
@@ -453,11 +429,11 @@ loadShapes = function(idImage){
 };
 
 createRect = function(data){
-
     var selectable = false;
 
-    if (isMoving)
+    if (isMoving) {
         selectable = true;
+    }
 
     return new fabric.Rect({
             id: data.id,
@@ -481,8 +457,9 @@ createRect = function(data){
 createEllipse = function(data){
     var selectable = false;
 
-    if (isMoving)
+    if (isMoving) {
         selectable = true;
+    }
 
     var ellipse =  new fabric.Ellipse({
         id: data.id,
@@ -501,6 +478,7 @@ createEllipse = function(data){
         selectable: selectable
     });
 
+    //Only you can set min scale limit after the instance
     ellipse.set('minScaleLimit', (minWidth/2)/parseFloat(data.width));
 
     return ellipse;
@@ -511,7 +489,7 @@ setMinSize = function(shape){
     var width, height;
     var isLower = false;
 
-    if(type == 'rect'){
+    if (type == 'rect') {
         width = shape.getWidth();
         height = shape.getHeight();
         if (width < minWidth) {
@@ -522,11 +500,11 @@ setMinSize = function(shape){
             shape.set('height', minHeight);
             isLower = true;
         }
-    }else if (type == 'ellipse'){
+    } else if (type == 'ellipse') {
         width = shape.getRx();
         height = shape.getRy();
-        var minWidthEllipse = minWidth/2;
-        var minHeightEllipse = minHeight/2;
+        var minWidthEllipse = minWidth / 2;
+        var minHeightEllipse = minHeight / 2;
         if (width < minWidthEllipse) {
             shape.set('rx', minWidthEllipse);
             isLower = true;
@@ -539,66 +517,11 @@ setMinSize = function(shape){
 
     if (isLower) {
         shape.set('minScaleLimit', 1);
-    }else {
+    } else {
         if (type == 'rect')
             shape.set('minScaleLimit', minWidth / width);
         else {
             shape.set('minScaleLimit', (minWidth / 2) / width);
         }
     }
-
 };
-
-//// Double-click event handler
-//    var fabricDblClick = function (obj, handler) {
-//        return function () {
-//            if (obj.clicked) {
-//                handler(obj);
-//            }
-//            else {
-//                obj.clicked = true;
-//                setTimeout(function () {
-//                    obj.clicked = false;
-//                }, 500);
-//            }
-//        };
-//    };
-//
-//// ungroup objects in group
-//    ungroup = function (group) {
-//        items = group._objects;
-//        group._restoreObjectsState();
-//        canvas.remove(group);
-//        for (var i = 0; i < items.length; i++) {
-//            canvas.add(items[i]);
-//        }
-//        // if you have disabled render on addition
-//        canvas.renderAll();
-//    };
-//
-//
-//// Re-group when text editing finishes
-//    var name = new fabric.IText('AOI name (Tap and Type)', {
-//        fontFamily: 'arial black',
-//        left: name_left,
-//        top: name_top,
-//        fontSize: 20
-//    });
-//
-//    name.on('editing:exited', function () {
-//        console.log('editing finished')
-//        //var items = [];
-//        //canvas2.forEachObject(function (obj) {
-//        //    items.push(obj);
-//        //    canvas2.remove(obj);
-//        //});
-//        //var grp = new fabric.Group(items.reverse(), {});
-//        //canvas2.add(grp);
-//        //grp.on('mousedown', fabricDblClick(grp, function (obj) {
-//        //    ungroup(grp);
-//        //    canvas2.setActiveObject(name);
-//        //    name.enterEditing();
-//        //    name.selectAll();
-//        //}));
-//    });
-
