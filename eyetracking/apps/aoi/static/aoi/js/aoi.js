@@ -6,16 +6,15 @@ var startCanvas;
 var startEvents;
 var drawShape;
 var mouseOver, mouseOut, mouseDown, mouseMove, mouseUp;
-var updateShape;
 var getShapeInfo;
 var deleteShape, keyDown;
 var moveShapes;
 var activateShapes;
 var saveShape;
-var setUrls;
 var loadShapes;
 var createRect;
 var createEllipse;
+var setMinSize;
 
 //Canvas
 var canvas;
@@ -31,20 +30,24 @@ var btnRectangle = $('#btn-rectangle');
 var btnDelete = $('#btn-delete');
 var btnMove = $('#btn-move');
 
-//Shapes
+//Shape properties
 var fill = 'white';
-var stroke = 'grey';
-var strokeWidth = 1.5;
+var stroke = 'black';
+var strokeWidth = 1;
 var opacity = 0.5;
 var cornerColor = 'white';
 var cornerSize = 10;
 var hasRotatingPoint = false;
 var hasBorders = false;
+
+//Var for aoi
 var urlCreate = 'new/';
 var urlUpdate = '/update/';
 var urlDelete = '/delete/';
 var urlLoadShapes = 'shapes/';
 var activeImage;
+var minWidth = 30;
+var minHeight = 30;
 
 //Shape name
 var ungroup, items;
@@ -119,6 +122,7 @@ changeImage = function(idImg, urlImage){
 
 startCanvas = function (idDivCanvas, idCanvas, idFirstImage, firstImage){
     canvas = new fabric.Canvas(idCanvas);
+    canvas.selection = false;
 
     //Set background image with the first image
     if (firstImage) {
@@ -270,6 +274,9 @@ mouseUp = function (e, type) {
     //Remove old shape
     canvas.remove(shape);
 
+    //If size is very small set minimum width and height
+    setMinSize(shape);
+
     //Set new shape
     canvas.add(shape);
     canvas.setActiveObject(shape);
@@ -346,12 +353,13 @@ getShapeInfo = function(){
         type: type
     };
 
+    //If has id add to dataShape
     var id = shape.get('id');
 
     if (id !== 'undefined')
         dataShape['id']=id;
 
-    return dataShape
+    return dataShape;
 };
 
 deleteShape = function(){
@@ -383,12 +391,6 @@ keyDown = function (e){
 moveShapes = function (){
     $(btnMove).tooltip('hide');
 
-    //Save changes of shapes
-    canvas.on('mouse:up', function(e){
-        dataShape = getShapeInfo();
-        saveShape(dataShape.id + urlUpdate, dataShape, true);
-    });
-
     if (isMoving){
         isMoving = false;
         $(btnMove).removeClass('active');
@@ -400,6 +402,16 @@ moveShapes = function (){
         $(btnMove).addClass('active');
         activateShapes(true);
     }
+
+    //Save changes of shapes
+    canvas.on('mouse:up', function(e){
+        var shape = canvas.getActiveObject();
+
+        if (shape !== null) {
+            dataShape = getShapeInfo();
+            saveShape(dataShape.id + urlUpdate, dataShape, true);
+        }
+    });
 };
 
 activateShapes = function(valueSelectable){
@@ -461,7 +473,8 @@ createRect = function(data){
             cornerSize: cornerSize,
             hasRotatingPoint: hasRotatingPoint,
             hasBorders: hasBorders,
-            selectable: selectable
+            selectable: selectable,
+            minScaleLimit: minWidth/parseFloat(data.width)
     });
 };
 
@@ -471,7 +484,7 @@ createEllipse = function(data){
     if (isMoving)
         selectable = true;
 
-    return new fabric.Ellipse({
+    var ellipse =  new fabric.Ellipse({
         id: data.id,
         rx: parseFloat(data.width),
         ry: parseFloat(data.height),
@@ -487,6 +500,53 @@ createEllipse = function(data){
         hasBorders: hasBorders,
         selectable: selectable
     });
+
+    ellipse.set('minScaleLimit', (minWidth/2)/parseFloat(data.width));
+
+    return ellipse;
+};
+
+setMinSize = function(shape){
+    var type = shape.get('type');
+    var width, height;
+    var isLower = false;
+
+    if(type == 'rect'){
+        width = shape.getWidth();
+        height = shape.getHeight();
+        if (width < minWidth) {
+            shape.set('width', minWidth);
+            isLower = true;
+        }
+        if (height < minHeight) {
+            shape.set('height', minHeight);
+            isLower = true;
+        }
+    }else if (type == 'ellipse'){
+        width = shape.getRx();
+        height = shape.getRy();
+        var minWidthEllipse = minWidth/2;
+        var minHeightEllipse = minHeight/2;
+        if (width < minWidthEllipse) {
+            shape.set('rx', minWidthEllipse);
+            isLower = true;
+        }
+        if (height < minHeightEllipse) {
+            shape.set('ry', minHeightEllipse);
+            isLower = true;
+        }
+    }
+
+    if (isLower) {
+        shape.set('minScaleLimit', 1);
+    }else {
+        if (type == 'rect')
+            shape.set('minScaleLimit', minWidth / width);
+        else {
+            shape.set('minScaleLimit', (minWidth / 2) / width);
+        }
+    }
+
 };
 
 //// Double-click event handler
