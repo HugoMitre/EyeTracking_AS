@@ -15,7 +15,12 @@ var saveShape;
 var loadShapes;
 var createRect;
 var createEllipse;
+var createIText;
 var setMinSize;
+var fabricDblClick;
+var ungroup;
+var changeName;
+var createGroup;
 
 //Canvas
 var canvas;
@@ -23,6 +28,14 @@ var x = 0;
 var y = 0;
 var isMoving = false;
 var isDrawing = false;
+var urlCreate = 'new/';
+var urlUpdate = '/update/';
+var urlDelete = '/delete/';
+var urlLoadShapes = 'shapes/';
+var activeImage;
+var minWidth = 30;
+var minHeight = 30;
+var defaultName = 'AOI';
 
 //Buttons
 var btnEllipse = $('#btn-ellipse');
@@ -39,15 +52,6 @@ var cornerColor = 'white';
 var cornerSize = 10;
 var hasRotatingPoint = false;
 var hasBorders = false;
-
-//Var for aoi
-var urlCreate = 'new/';
-var urlUpdate = '/update/';
-var urlDelete = '/delete/';
-var urlLoadShapes = 'shapes/';
-var activeImage;
-var minWidth = 30;
-var minHeight = 30;
 
 
 getCookie = function (name) {
@@ -104,7 +108,7 @@ slider = function(idSlider){
 changeImage = function(idImg, urlImage){
     $(idImg).on('click', function(){
         var id = $(this).attr('id');
-        $.get(urlImage, {'image_id':id}).done(function(data){
+        $.get(urlImage, {'image_id':id}).success(function(data){
             activeImage = data.id;
             canvas.clear();
             canvas.setBackgroundImage(data.urlPhoto, canvas.renderAll.bind(canvas));
@@ -136,8 +140,8 @@ startCanvas = function (idDivCanvas, idCanvas, idFirstImage, firstImage){
 
 startEvents = function(){
     //Hover
-    canvas.on('mouse:over', function (e){ mouseOver(e);});
-    canvas.on('mouse:out', function (e){ mouseOut(e);});
+    //canvas.on('mouse:over', function (e){ mouseOver(e);});
+    //canvas.on('mouse:out', function (e){ mouseOut(e);});
 
     //Draw
     btnEllipse.on('click', function(){ drawShape('ellipse');});
@@ -260,15 +264,24 @@ mouseMove = function (e, type) {
 mouseUp = function (e, type) {
     var shape = canvas.getActiveObject();
 
-    //Remove old shape
+    //Remove shape
     canvas.remove(shape);
 
     //If size is very small set minimum width and height
     setMinSize(shape);
 
-    //Set new shape
-    canvas.add(shape);
-    canvas.setActiveObject(shape);
+    //Create label
+    var text = createIText(defaultName, {
+        'fontSize': 20,
+        'left': shape.left + (shape.width/2),
+        'top': shape.top + (shape.height/2),
+        'originX': 'center',
+        'originY': 'center'});
+
+    //Create new group
+    var group = createGroup([shape, text]);
+    canvas.add(group);
+    canvas.setActiveObject(group);
 
     //Get info and save
     dataShape = getShapeInfo();
@@ -304,25 +317,33 @@ finishDraw = function(type){
 };
 
 getShapeInfo = function(){
-    var shape = canvas.getActiveObject();
+    var group = canvas.getActiveObject();
+    var shape = group.item(0);
     var token = getCookie('csrftoken');
     var type = shape.get('type');
-    var width, height;
+    var name = group.item(0).get('name');
 
+    //Get width and height
+    var width, height;
     if (type == 'rect'){
-        width = shape.getWidth().toFixed(2);
-        height = shape.getHeight().toFixed(2);
+        width = group.getWidth().toFixed(2);
+        height = group.getHeight().toFixed(2);
     }else if (type == 'ellipse'){
-        width = shape.getRx().toFixed(2);
-        height = shape.getRy().toFixed(2);
+        width = (group.getWidth().toFixed(2))/2;
+        height = (group.getHeight().toFixed(2))/2;
     }
+
+    //Get top and left
+    var top, left;
+    top = group.get('top').toFixed(2);
+    left = group.get('left').toFixed(2);
 
     var dataShape = {
         csrfmiddlewaretoken: token,
         image: activeImage,
-        name: 'test',
-        top: shape.get('top').toFixed(2),
-        left: shape.get('left').toFixed(2),
+        name: name,
+        top: top,
+        left: left,
         width: width,
         height: height,
         type: type
@@ -338,14 +359,16 @@ getShapeInfo = function(){
 
 deleteShape = function(){
     $(btnDelete).tooltip('hide');
-    var shape = canvas.getActiveObject();
+    var group = canvas.getActiveObject();
+    var shape = group.item(0);
+    var shapeName = group.item(1).getText();
 
-    if (typeof shape !== 'undefined' && shape != null){
-         if (confirm('Are you sure you want to delete the aoi selected?')){
+    if (typeof group !== 'undefined' && group != null){
+         if (confirm('Are you sure you want to delete "'+ shapeName +'"?')){
              var token = getCookie('csrftoken');
              var id = shape.get('id');
-             $.post(id + urlDelete, {csrfmiddlewaretoken: token}).done(function(e) {
-                 shape.remove();
+             $.post(id + urlDelete, {csrfmiddlewaretoken: token}).success(function(e) {
+                 canvas.remove(group);
              }).fail(function() {
                 toastr.error('The request was unsuccessful', 'Error');
              });
@@ -377,15 +400,58 @@ moveShapes = function (){
         activateShapes(true);
     }
 
-    //Save changes of shapes
-    canvas.on('mouse:up', function(e){
-        var shape = canvas.getActiveObject();
-
-        if (shape !== null) {
-            dataShape = getShapeInfo();
-            saveShape(dataShape.id + urlUpdate, dataShape, true);
-        }
+    canvas.on('object:modified', function(){
+        dataShape = getShapeInfo();
+        saveShape(dataShape.id + urlUpdate, dataShape, true);
     });
+
+
+    var shape = canvas.getActiveObject();
+    if (shape)
+        changeName();
+
+    canvas.on('object:selected', function () {
+        changeName();
+    });
+
+
+};
+
+changeName = function(){
+    var shape = canvas.getActiveObject();
+    var type = shape.get('type');
+
+    if (type == 'group') {
+
+        shape.off('mousedown');
+        shape.item(1).off('editing:exited');
+
+        shape.on('mousedown', fabricDblClick(shape, function (obj) {
+            ungroup(shape);
+            canvas.setActiveObject(shape.item(1));
+            shape.item(1).enterEditing();
+            shape.item(1).selectAll();
+        }));
+
+        shape.item(1).on('editing:exited', function () {
+            console.log('salio');
+            a = canvas.getItemById(shape.item(1).get('id'));
+            b = canvas.getItemById(shape.item(0).get('id'));
+
+            canvas.remove(a);
+            canvas.remove(b);
+
+            var group = new fabric.Group([b, a]);
+            canvas.add(group);
+
+            shape.on('mousedown', fabricDblClick(shape, function (obj) {
+                ungroup(shape);
+                canvas.setActiveObject(shape.item(1));
+                shape.item(1).enterEditing();
+                shape.item(1).selectAll();
+            }));
+        });
+    }
 };
 
 activateShapes = function(valueSelectable){
@@ -395,10 +461,11 @@ activateShapes = function(valueSelectable){
 };
 
 saveShape = function(url, data, isNew){
-    $.post(url, data).done(function(e) {
+    $.post(url, data).success(function(e) {
         var shape = canvas.getActiveObject();
         if (isNew) {
-            shape.set('id', e.pk);
+            shape.item(0).set('id', e.pk);
+            shape.item(1).set('id', 'l' + e.pk);
         }
     }).fail(function() {
         toastr.error('The request was unsuccessful', 'Error');
@@ -410,17 +477,37 @@ loadShapes = function(idImage){
     .done(function(e) {
         $.each(e, function( index, value ) {
             var type = value.fields.type;
-            var data = {'id':value.pk, 'width':value.fields.width, 'height':value.fields.height, 'top':value.fields.top, 'left':value.fields.left};
+            var id = value.pk;
+            var name = value.fields.name;
+            var width = parseFloat(value.fields.width);
+            var height = parseFloat(value.fields.height);
+            var top = parseFloat(value.fields.top);
+            var left = parseFloat(value.fields.left);
+            var data = {'id':id, 'name':name, 'width':width, 'height':height, 'top':top, 'left':left};
             var shape;
 
             if (type == 'rect'){
                 shape = createRect(data);
+                left += width/2;
+                top += height/2;
             }
             else if (type == 'ellipse') {
                 shape = createEllipse(data);
+                left += width;
+                top += height;
             }
 
-            canvas.add(shape);
+            var text = createIText(name, {
+                'id':'l' + id,
+                'fontSize': 20,
+                'left': left,
+                'top': top,
+                'originX': 'center',
+                'originY': 'center'});
+
+            var group = createGroup([shape, text]);
+
+            canvas.add(group);
         });
         canvas.renderAll();
     }).fail(function() {
@@ -430,39 +517,51 @@ loadShapes = function(idImage){
 
 createRect = function(data){
     var selectable = false;
+    var name = defaultName;
 
     if (isMoving) {
         selectable = true;
     }
 
+    if (data.name) {
+        name = data.name;
+    }
+
     return new fabric.Rect({
-            id: data.id,
-            width: parseFloat(data.width),
-            height: parseFloat(data.height),
-            left: parseFloat(data.left),
-            top: parseFloat(data.top),
-            fill : fill,
-            stroke: stroke,
-            strokeWidth: strokeWidth,
-            opacity: opacity,
-            cornerColor: cornerColor,
-            cornerSize: cornerSize,
-            hasRotatingPoint: hasRotatingPoint,
-            hasBorders: hasBorders,
-            selectable: selectable,
-            minScaleLimit: minWidth/parseFloat(data.width)
+        id: data.id,
+        name: name,
+        width: parseFloat(data.width),
+        height: parseFloat(data.height),
+        left: parseFloat(data.left),
+        top: parseFloat(data.top),
+        fill : fill,
+        stroke: stroke,
+        strokeWidth: strokeWidth,
+        opacity: opacity,
+        cornerColor: cornerColor,
+        cornerSize: cornerSize,
+        hasRotatingPoint: hasRotatingPoint,
+        hasBorders: hasBorders,
+        selectable: selectable,
+        minScaleLimit: minWidth/parseFloat(data.width)
     });
 };
 
 createEllipse = function(data){
     var selectable = false;
+    var name = defaultName;
 
     if (isMoving) {
         selectable = true;
     }
 
+    if (data.name) {
+        name = data.name;
+    }
+
     var ellipse =  new fabric.Ellipse({
         id: data.id,
+        name: name,
         rx: parseFloat(data.width),
         ry: parseFloat(data.height),
         left: parseFloat(data.left),
@@ -482,6 +581,27 @@ createEllipse = function(data){
     ellipse.set('minScaleLimit', (minWidth/2)/parseFloat(data.width));
 
     return ellipse;
+};
+
+createIText = function(name, data){
+    return new fabric.IText(name, {
+        id: data.id,
+        fontSize: data.fontSize,
+        left: parseFloat(data.left),
+        top: parseFloat(data.top),
+        originX: data.originX,
+        originY: data.originY
+    });
+};
+
+createGroup = function(shapes){
+    var selectable = false;
+
+    if (isMoving) {
+        selectable = true;
+    }
+
+    return new fabric.Group(shapes, {'selectable':selectable});
 };
 
 setMinSize = function(shape){
@@ -524,4 +644,42 @@ setMinSize = function(shape){
             shape.set('minScaleLimit', (minWidth / 2) / width);
         }
     }
+};
+
+fabricDblClick = function (obj, handler) {
+    return function () {
+        if (obj.clicked) {
+            handler(obj);
+        }
+        else {
+            obj.clicked = true;
+            setTimeout(function () {
+                obj.clicked = false;
+            }, 500);
+        }
+    };
+};
+
+ungroup = function (group) {
+    var items;
+    items = group._objects;
+    group._restoreObjectsState();
+    canvas.remove(group);
+    for (var i = 0; i < items.length; i++) {
+        canvas.add(items[i]);
+    }
+};
+
+fabric.Canvas.prototype.getItemById = function(id) {
+    var object = null,
+        objects = this.getObjects();
+
+    for (var i = 0, len = this.size(); i < len; i++) {
+        if (objects[i].id && objects[i].id === id) {
+            object = objects[i];
+            break;
+        }
+    }
+
+    return object;
 };

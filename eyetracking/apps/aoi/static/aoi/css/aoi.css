@@ -22,3 +22,7 @@
 .tools-aoi div{
     margin: 15px;
 }
+
+.tools-aoi div button{
+    margin-bottom: 10px;
+}
