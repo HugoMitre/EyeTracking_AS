@@ -209,15 +209,19 @@ drawShape = function (type){
 };
 
 mouseOver = function (e){
-    e.target.item(0).setFill('dark');
-    e.target.item(1).setColor('white');
-    canvas.renderAll();
+    if (e.target.get('type') == 'group') {
+        e.target.item(0).setFill('dark');
+        e.target.item(1).setColor('white');
+        canvas.renderAll();
+    }
 };
 
 mouseOut = function (e){
-    e.target.item(0).setFill('white');
-    e.target.item(1).setColor('dark');
-    canvas.renderAll();
+    if (e.target.get('type') == 'group') {
+        e.target.item(0).setFill('white');
+        e.target.item(1).setColor('dark');
+        canvas.renderAll();
+    }
 };
 
 mouseDown = function (e, shape) {
@@ -335,8 +339,8 @@ getShapeInfo = function(){
         width = group.getWidth().toFixed(2);
         height = group.getHeight().toFixed(2);
     }else if (type == 'ellipse'){
-        width = (group.getWidth().toFixed(2))/2;
-        height = (group.getHeight().toFixed(2))/2;
+        width = (group.getWidth() / 2).toFixed(2);
+        height = (group.getHeight() / 2 ).toFixed(2);
     }
 
     //Get top and left
