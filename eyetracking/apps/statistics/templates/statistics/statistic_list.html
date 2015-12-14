@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load render_table from django_tables2 %}
+
+{% block title %} Manage Statistics {% endblock %}
+
+{% block menu %}
+    {% include 'menu.html' with active_menu='statistics' %}
+{% endblock %}
+
+{% block page_title %} Manage Statistics {% endblock %}
+
+{% block actions %}
+    <a class="btn btn-success" href="{% url 'statistics:create' %}" role="button"><i class="glyphicon glyphicon-plus"></i> Create</a>
+{% endblock %}
+
+{% block content %}
+    {% render_table table "table.html" %}
+{% endblock %}

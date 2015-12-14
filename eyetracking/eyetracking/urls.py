@@ -21,10 +21,11 @@ from django.conf import settings
 
 urlpatterns = [
     url(r'^$', views.home, name='home'),
-    url(r'^tracker/', include('apps.tracker.urls', namespace="tracker")),
-    url(r'^images/', include('apps.images.urls', namespace="images")),
-    url(r'^participants/', include('apps.participants.urls', namespace="participants")),
-    url(r'^aoi/', include('apps.aoi.urls', namespace="aoi")),
+    url(r'^tracker/', include('apps.tracker.urls', namespace='tracker')),
+    url(r'^images/', include('apps.images.urls', namespace='images')),
+    url(r'^participants/', include('apps.participants.urls', namespace='participants')),
+    url(r'^aoi/', include('apps.aoi.urls', namespace='aoi')),
+    url(r'^statistics/', include('apps.statistics.urls', namespace='statistics')),
 ]
 
 if settings.DEBUG:

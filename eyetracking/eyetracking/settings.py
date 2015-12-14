@@ -48,6 +48,7 @@ INSTALLED_APPS = (
     'apps.images',
     'apps.participants',
     'apps.aoi',
+    'apps.statistics'
 )
 
 MIDDLEWARE_CLASSES = (
