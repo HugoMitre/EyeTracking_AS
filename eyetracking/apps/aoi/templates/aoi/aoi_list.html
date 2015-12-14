@@ -20,10 +20,10 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="slider">
-                {% for photo in photos %}
+                {% for image in images %}
                     <div class='photo'>
-                      <img id='{{ photo.id }}' class="img-slider" width="auto" height="93px" src="{{ MEDIA_URL }}{{ photo.resized_image }}">
-                      <h6>{{ photo.original_name }}</h6>
+                      <img id='{{ image.id }}' class="img-slider" width="auto" height="93px" src="{{ MEDIA_URL }}{{ image.resized_image }}">
+                      <h6>{{ image.original_name }}</h6>
                     </div>
                 {% endfor %}
             </div>
@@ -44,7 +44,7 @@
              </div>
          </div>
 
-         <div id="canvas-image" class="col-xs-10 col-md-10">
+         <div id="canvas-image" class="col-xs-10 col-md-10" style="overflow: scroll; padding-bottom:15px;">
              <canvas id="canvas"></canvas>
          </div>
     </div>
@@ -59,7 +59,6 @@
     <script src="{% static 'aoi/js/aoi.js' %}"></script>
     <script>
         slider('.slider');
-        startCanvas('#canvas-image', 'canvas', '{{ id_first_image }}', '{{ first_image }}');
-        changeImage('.img-slider', '{% url 'aoi:image' %}');
+        startCanvas('#canvas-image', 'canvas', '{{ id_first_image }}');
     </script>
 {% endblock %}

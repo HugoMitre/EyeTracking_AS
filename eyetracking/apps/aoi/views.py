@@ -12,15 +12,13 @@ class AOIList(TemplateView):
     template_name = 'aoi/aoi_list.html'
 
     def get_context_data(self, **kwargs):
-        first_image = ''
         id_first_image = ''
         images = Image.objects.all()
 
         if (images):
-            first_image = settings.MEDIA_URL + images[0].image.name
             id_first_image = images[0].pk
 
-        return {'photos': images, 'first_image': first_image, 'id_first_image':id_first_image}
+        return {'images': images, 'id_first_image':id_first_image}
 
 
 class AjaxableResponseMixin(object):
@@ -89,12 +87,12 @@ class JSONResponseMixin(object):
         return context
 
 
-class AOIGetUrlImage(JSONResponseMixin, TemplateView):
+class AOIGetInfoImage(JSONResponseMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         id = self.request.GET.get('image_id')
         model = get_object_or_404(Image, pk=id)
-        return {'id':id, 'urlPhoto': settings.MEDIA_URL+model.image.name}
+        return {'id':model.id, 'image':settings.MEDIA_URL+model.image.name, 'height':model.height, 'width':model.width}
 
     def render_to_response(self, context, **response_kwargs):
         return self.render_to_json_response(context, **response_kwargs)
@@ -117,7 +115,6 @@ class AOIDelete(JSONResponseMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
-        print  context
         return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
@@ -128,3 +125,18 @@ class AOIDelete(JSONResponseMixin, TemplateView):
     def render_to_response(self, context, **response_kwargs):
         return self.render_to_json_response(context, **response_kwargs)
 
+
+class AOIChangeName(JSONResponseMixin, TemplateView):
+
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data()
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        id =  self.kwargs['pk']
+        name = self.request.POST.get('name')
+        AOI.objects.filter(id=id).update(name=name)
+        return {'success':True}
+
+    def render_to_response(self, context, **response_kwargs):
+        return self.render_to_json_response(context, **response_kwargs)

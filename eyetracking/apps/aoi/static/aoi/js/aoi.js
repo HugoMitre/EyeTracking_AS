@@ -32,6 +32,8 @@ var urlCreate = 'new/';
 var urlUpdate = '/update/';
 var urlDelete = '/delete/';
 var urlLoadShapes = 'shapes/';
+var urlChangeName = '/change_name/';
+var urlImageInfo = 'image/';
 var activeImage;
 var minWidth = 30;
 var minHeight = 30;
@@ -105,54 +107,56 @@ slider = function(idSlider){
     });
 };
 
-changeImage = function(idImg, urlImage){
-    $(idImg).on('click', function(){
-        var id = $(this).attr('id');
-        $.get(urlImage, {'image_id':id}).success(function(data){
-            activeImage = data.id;
-            canvas.clear();
-            canvas.setBackgroundImage(data.urlPhoto, canvas.renderAll.bind(canvas));
-            loadShapes(activeImage);
-        }).fail(function() {
-            toastr.error('The request was unsuccessful', 'Error');
-        });
+changeImage = function(idImg){
+    $.get(urlImageInfo, {'image_id':idImg}).success(function(data){
+        activeImage = data.id;
+        canvas.clear();
+
+        fabric.Image.fromURL(data.image, function(img) {
+            canvas.setDimensions({'width':data.width, 'height':data.height});
+            canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+        }, {'width':data.width, height:data.height});
+
+        loadShapes(activeImage);
+    }).fail(function() {
+        toastr.error('The request was unsuccessful', 'Error');
     });
 };
 
-startCanvas = function (idDivCanvas, idCanvas, idFirstImage, firstImage){
+startCanvas = function (idDivCanvas, idCanvas, idFirstImage){
     canvas = new fabric.Canvas(idCanvas);
     canvas.selection = false;
 
     //Set background image with the first image
-    if (firstImage) {
-        activeImage = idFirstImage;
-        canvas.setBackgroundImage(firstImage, canvas.renderAll.bind(canvas));
-        loadShapes(idFirstImage);
+    if (idFirstImage) {
+        changeImage(idFirstImage);
     }
 
-    //Dimensions
-    var widthCanvas = $(idDivCanvas).width();
-    canvas.setDimensions({'width':widthCanvas, 'height':800});
-
     //Events
-    startEvents();
+    startEvents(idDivCanvas);
 };
 
-startEvents = function(){
+startEvents = function(idDivCanvas){
+    //Change Image
+    $('.img-slider').on('click', function(){ changeImage($(this).attr('id')) });
+
     //Hover
-    //canvas.on('mouse:over', function (e){ mouseOver(e);});
-    //canvas.on('mouse:out', function (e){ mouseOut(e);});
+    canvas.on('mouse:over', function (e){ mouseOver(e) });
+    canvas.on('mouse:out', function (e){ mouseOut(e) });
 
     //Draw
-    btnEllipse.on('click', function(){ drawShape('ellipse');});
-    btnRectangle.on('click', function(){ drawShape('rectangle');});
+    btnEllipse.on('click', function(){ drawShape('ellipse') });
+    btnRectangle.on('click', function(){ drawShape('rectangle') });
 
     //Delete
-    btnDelete.on('click', function(){ deleteShape();});
-    $('html').keydown(function(e){ keyDown(e);});
+    btnDelete.on('click', function(){ deleteShape() });
+    $('html').keydown(function(e){ keyDown(e) });
 
     //Move
-    btnMove.on('click', function(){ moveShapes();});
+    btnMove.on('click', function(){ moveShapes() });
+
+    //Scroll
+    $(idDivCanvas).onscroll = function(){ c2.calcOffset() };
 };
 
 drawShape = function (type){
@@ -205,12 +209,14 @@ drawShape = function (type){
 };
 
 mouseOver = function (e){
-    e.target.setFill('dark');
+    e.target.item(0).setFill('dark');
+    e.target.item(1).setColor('white');
     canvas.renderAll();
 };
 
 mouseOut = function (e){
-    e.target.setFill('white');
+    e.target.item(0).setFill('white');
+    e.target.item(1).setColor('dark');
     canvas.renderAll();
 };
 
@@ -435,6 +441,7 @@ changeName = function(){
 
         shape.item(1).on('editing:exited', function () {
             console.log('salio');
+            name = shape.item(1).getText();
             a = canvas.getItemById(shape.item(1).get('id'));
             b = canvas.getItemById(shape.item(0).get('id'));
 
@@ -443,6 +450,9 @@ changeName = function(){
 
             var group = new fabric.Group([b, a]);
             canvas.add(group);
+
+            var token = getCookie('csrftoken');
+            saveShape(shape.item(0).get('id') + urlChangeName, {'name':name, 'csrfmiddlewaretoken': token}, false);
 
             shape.on('mousedown', fabricDblClick(shape, function (obj) {
                 ungroup(shape);
@@ -462,8 +472,8 @@ activateShapes = function(valueSelectable){
 
 saveShape = function(url, data, isNew){
     $.post(url, data).success(function(e) {
-        var shape = canvas.getActiveObject();
         if (isNew) {
+            var shape = canvas.getActiveObject();
             shape.item(0).set('id', e.pk);
             shape.item(1).set('id', 'l' + e.pk);
         }
