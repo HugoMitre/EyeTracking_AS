@@ -25,7 +25,6 @@ urlpatterns = [
     url(r'^images/', include('apps.images.urls', namespace="images")),
     url(r'^participants/', include('apps.participants.urls', namespace="participants")),
     url(r'^aoi/', include('apps.aoi.urls', namespace="aoi")),
-    url(r'^aoi2/', include('apps.aoi2.urls', namespace="aoi2")),
 ]
 
 if settings.DEBUG:

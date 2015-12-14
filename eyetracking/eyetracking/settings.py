@@ -48,11 +48,7 @@ INSTALLED_APPS = (
     'apps.images',
     'apps.participants',
     'apps.aoi',
-    'apps.aoi2'
 )
-
-FAKER_LOCALE = None     # settings.LANGUAGE_CODE is loaded
-FAKER_PROVIDERS = None  # faker.DEFAULT_PROVIDERS is loaded (all)
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
