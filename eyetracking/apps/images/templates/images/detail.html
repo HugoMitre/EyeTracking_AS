@@ -10,7 +10,13 @@
 
 {% block actions %}
     <a class="btn btn-primary" href="{% url 'images:update_image' object.id %}" role="button"><i class="glyphicon glyphicon-edit"></i> Update</a>
-    <a class="btn btn-danger delete-link" data-delete-url="{% url 'images:delete_image' object.id %}" role="button"><i class="glyphicon glyphicon-trash"></i> Delete</a>
+
+    <form class="form-inline" method="POST" action="{% url 'images:delete_image' object.id %}">
+        {% csrf_token %}
+        <button onclick="return confirm('Are you sure you want to delete?')" type="submit" class="btn btn-danger tooltip-btn" data-toggle="tooltip" data-placement="top" data-original-title="Delete">
+            <i class="glyphicon glyphicon-trash"></i> Delete
+        </button>
+    </form>
 {% endblock %}
 
 {% block content %}

@@ -1,16 +1,19 @@
+import os
 from django.shortcuts import render
 from django_tables2 import RequestConfig
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
+from django.conf import settings
+from django.db import transaction
+from django.views.decorators.http import require_POST
+from jfu.http import upload_receive, UploadResponse, JFUResponse
+from apps.aoi.models import AOI
 from .models import Image
 from .tables import PhotoTable
 from .forms import PhotoForm
-import os
-from django.conf import settings
-from django.views.decorators.http import require_POST
-from jfu.http import upload_receive, UploadResponse, JFUResponse
+
 
 
 def index(request):
@@ -44,15 +47,19 @@ def update(request, pk):
     return render(request, 'images/update.html', {'form': form})
 
 
+@transaction.atomic
 def delete(request, pk):
 
     model = get_object_or_404(Image, pk=pk)
     model.delete()
     os.unlink(model.image.path)
     os.unlink(model.resized_image.path)
+
+    AOI.objects.filter(image=pk).delete()
+
     messages.success(request, 'Image Deleted')
 
-    return HttpResponse('OK')
+    return HttpResponseRedirect(reverse('images:index_images'))
 
 
 @require_POST
@@ -82,6 +89,7 @@ def upload(request):
 
 
 @require_POST
+@transaction.atomic
 def upload_delete(request, pk):
 
     success = True
@@ -90,6 +98,7 @@ def upload_delete(request, pk):
         os.unlink(model.image.path)
         os.unlink(model.resized_image.path)
         model.delete()
+        AOI.objects.filter(image=pk).delete()
     except Image.DoesNotExist:
         success = False
 
