@@ -13,7 +13,7 @@ class Participant(models.Model):
     gender = models.CharField(verbose_name='Gender', max_length=1, choices=GENDER_CHOICES)
 
     def __str__(self):
-        return self.name
+        return self.first_name
 
     def get_absolute_url(self):
         return reverse('participants:detail', args=[str(self.id)])

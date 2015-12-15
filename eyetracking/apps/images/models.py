@@ -7,7 +7,7 @@ import django_filters
 class Image(models.Model):
 
     image = models.ImageField(upload_to=upload_to, height_field='height', width_field='width')
-    resized_image = ResizedImageField(verbose_name="Photo", size=[150, 150], quality=90, upload_to=upload_to)
+    resized_image = ResizedImageField(verbose_name="Image", size=[150, 150], quality=90, upload_to=upload_to)
     original_name = models.CharField(verbose_name="Name", max_length=255, default='default')
     size = models.CharField(verbose_name="Size", max_length=30, default='')
     width = models.PositiveIntegerField(verbose_name="Resolution", default=0)
