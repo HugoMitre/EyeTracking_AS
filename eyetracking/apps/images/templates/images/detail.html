@@ -39,7 +39,3 @@
         </tr>
     </table>
 {% endblock %}
-
-{% block body_files %}
-    <script>$(document).ready(ready_detail("{{ csrf_token }}" ,"{% url 'images:index_images' %}"));</script>
-{% endblock %}

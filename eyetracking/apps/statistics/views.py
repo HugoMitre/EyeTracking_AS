@@ -2,17 +2,23 @@ from django.core.urlresolvers import reverse_lazy
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
-from vanilla import CreateView, DetailView, UpdateView, RedirectView
-from django_tables2 import SingleTableView
+from vanilla import CreateView, DetailView, UpdateView, RedirectView, TemplateView
 from .forms import StatisticForm
 from .models import Statistic
-from .tables import StatisticTable
+from apps.images.models import Image
 
 
-class StatisticList(SingleTableView):
-    model = Statistic
-    table_class = StatisticTable
-    table_pagination = {'per_page': 10}
+class StatisticList(TemplateView):
+    template_name = 'statistics/statistic_list.html'
+
+    def get_context_data(self, **kwargs):
+        id_first_image = ''
+        images = Image.objects.all()
+
+        if (images):
+            id_first_image = images[0].pk
+
+        return {'images': images, 'id_first_image':id_first_image}
 
 
 class StatisticCreate(SuccessMessageMixin, CreateView):

@@ -1,0 +1,16 @@
+.slider{
+    margin:30px auto;
+    text-align:center;
+}
+
+.slider img{
+  display: inline;
+}
+
+.img-slider{
+    cursor: pointer;
+}
+
+.photo:hover{
+    background-color: #efefef;
+}

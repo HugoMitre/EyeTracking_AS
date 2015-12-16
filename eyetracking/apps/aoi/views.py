@@ -9,7 +9,7 @@ from .models import AOI
 
 
 class AOIList(TemplateView):
-    template_name = 'aoi/aoi_list.html'
+    template_name = 'aoi/aoi_draw.html'
 
     def get_context_data(self, **kwargs):
         id_first_image = ''
