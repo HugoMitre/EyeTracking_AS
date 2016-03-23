@@ -14,5 +14,19 @@
 {% endblock %}
 
 {% block content %}
+    <div class="container-fluid well">
+        <div class="col-lg-3">
+            <p>Mean = {{ view.mean }}</p>
+        </div>
+        <div class="col-lg-3">
+            <p>SD = {{ view.sd }}</p>
+        </div>
+        <div class="col-lg-3">
+            <p><i class="fa fa-male"></i> = {{ view.male }}</p>
+        </div>
+        <div class="col-lg-3">
+            <p><i class="fa fa-female"></i> = {{ view.female }}</p>
+        </div>
+    </div>
     {% render_table table "table.html" %}
 {% endblock %}

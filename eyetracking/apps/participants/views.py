@@ -7,12 +7,21 @@ from django_tables2 import SingleTableView
 from .forms import ParticipantForm
 from .models import Participant
 from .tables import ParticipantTable
+from .filters import ParticipantFilter
+from .utils import PagedFilteredTableView
 
 
 class ParticipantList(SingleTableView):
+    #PagedFilteredTableView
     model = Participant
     table_class = ParticipantTable
     table_pagination = {'per_page': 10}
+    #filter_class = ParticipantFilter
+
+    total = Participant().get_total()
+    male, female = Participant().count_gender(total)
+    mean = Participant().mean()
+    sd = Participant().sd()
 
 
 class ParticipantCreate(SuccessMessageMixin, CreateView):
@@ -40,6 +49,7 @@ class ParticipantDelete(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         self.url = reverse_lazy('participants:list')
+        self.permanent = True
         model = get_object_or_404(Participant, pk=kwargs['pk'])
         name = model.first_name + ' ' + model.last_name
         model.delete()
