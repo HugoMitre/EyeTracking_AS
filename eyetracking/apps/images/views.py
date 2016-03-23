@@ -5,10 +5,10 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
-from django.conf import settings
 from django.db import transaction
 from django.views.decorators.http import require_POST
 from jfu.http import upload_receive, UploadResponse, JFUResponse
+from eyetracking.settings import MEDIA_URL
 from apps.aoi.models import AOI
 from .models import Image
 from .tables import PhotoTable
@@ -78,8 +78,8 @@ def upload(request):
         'name': basename,
         'size': size,
 
-        'url': settings.MEDIA_URL + str(model.image),
-        'thumbnailUrl': settings.MEDIA_URL + str(model.resized_image),
+        'url': MEDIA_URL + str(model.image),
+        'thumbnailUrl': MEDIA_URL + str(model.resized_image),
 
         'deleteUrl': reverse('images:upload_delete', kwargs={'pk': model.pk}),
         'deleteType': 'POST',

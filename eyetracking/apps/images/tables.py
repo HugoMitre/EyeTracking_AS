@@ -7,7 +7,7 @@ from django.utils.html import escape
 from eyetracking.settings import MEDIA_URL
 
 class PhotoTable(tables.Table):
-
+    id = tables.Column(orderable=True)
     resized_image = tables.Column(orderable=False)
     original_name = tables.LinkColumn('images:detail_image', args=[A('pk')])
     width = tables.Column()
@@ -16,7 +16,7 @@ class PhotoTable(tables.Table):
 
     class Meta:
         model = Image
-        fields = ('resized_image', 'original_name', 'size', 'width')
+        fields = ('id', 'resized_image', 'original_name', 'size', 'width')
 
     def render_resized_image(self, value, record):
         link_detail = reverse("images:detail_image", args=[record.pk])

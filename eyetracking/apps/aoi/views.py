@@ -1,8 +1,8 @@
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse, HttpResponse
 from django.core import serializers
-from django.conf import settings
 from vanilla import CreateView, UpdateView, TemplateView
+from eyetracking.settings import MEDIA_URL
 from apps.images.models import Image
 from .forms import AOIForm
 from .models import AOI
@@ -92,7 +92,7 @@ class AOIGetInfoImage(JSONResponseMixin, TemplateView):
     def get_context_data(self, **kwargs):
         id = self.request.GET.get('image_id')
         model = get_object_or_404(Image, pk=id)
-        return {'id':model.id, 'image':settings.MEDIA_URL+model.image.name, 'height':model.height, 'width':model.width}
+        return {'id':model.id, 'image':MEDIA_URL+model.image.name, 'height':model.height, 'width':model.width}
 
     def render_to_response(self, context, **response_kwargs):
         return self.render_to_json_response(context, **response_kwargs)
