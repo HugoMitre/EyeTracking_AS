@@ -15,7 +15,6 @@ from .tables import PhotoTable
 from .forms import PhotoForm
 
 
-
 def index(request):
 
     model = Image.objects.all()

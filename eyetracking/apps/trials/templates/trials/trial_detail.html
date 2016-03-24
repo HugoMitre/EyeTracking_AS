@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %} View Trial {% endblock %}
+
+{% block menu %}
+    {% include 'menu.html' with active_menu='trials' %}
+{% endblock %}
+
+{% block page_title %} View Trial {% endblock %}
+
+{% block actions %}
+    <form class="form-inline" method="POST" action="{% url 'trials:delete' object.pk %}">
+        {% csrf_token %}
+        <button onclick="return confirm('Are you sure you want to delete?')" type="submit" class="btn btn-danger tooltip-btn" data-toggle="tooltip" data-placement="top" data-original-title="Delete">
+            <i class="glyphicon glyphicon-trash"></i> Delete
+        </button>
+    </form>
+{% endblock %}
+
+{% block content %}
+    <table class="table table-striped">
+        <tr>
+            <td><strong>Image</strong></td>
+            <td><img class="img-responsive" alt="{{ object.image.original_name }}" src="{{ MEDIA_URL }}{{ object.image.image }}"></td>
+        </tr>
+        <tr>
+            <td><strong>Trial Name</strong></td>
+            <td>{{ object.image.original_name }}</td>
+        </tr>
+        <tr>
+            <td><strong>Participant</strong></td>
+            <td>{{ object.participant.first_name }} {{ object.participant.last_name }}</td>
+        </tr>
+        <tr>
+            <td><strong>Start Date</strong></td>
+            <td>{{ object.start_date }}</td>
+        </tr>
+        <tr>
+            <td><strong>End Date</strong></td>
+            <td>{{ object.end_date }}</td>
+        </tr>
+        <tr>
+            <td><strong>Duration</strong></td>
+            <td>{{ duration }}</td>
+        </tr>
+        <tr>
+            <td><strong>Samples</strong></td>
+            <td>{{ samples }}</td>
+        </tr>
+        <tr>
+            <td><strong>Comments</strong></td>
+            <td>{{ object.comments }}</td>
+        </tr>
+    </table>
+{% endblock %}

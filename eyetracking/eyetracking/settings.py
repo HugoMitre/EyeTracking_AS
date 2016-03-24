@@ -48,7 +48,8 @@ INSTALLED_APPS = (
     'apps.images',
     'apps.participants',
     'apps.aoi',
-    'apps.statistics'
+    'apps.statistics',
+    'apps.trials',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -105,7 +106,7 @@ TIME_ZONE = 'America/Mexico_City'
 
 USE_I18N = True
 
-USE_L10N = True
+USE_L10N = False
 
 USE_TZ = True
 
@@ -196,3 +197,7 @@ STATICFILES_FINDERS = (
     # other finders..
     'compressor.finders.CompressorFinder',
 )
+
+DATETIME_FORMAT = 'F d, Y H:m:s:u'
+
+SHORT_DATETIME_FORMAT = 'F d, Y H:m:s:u'

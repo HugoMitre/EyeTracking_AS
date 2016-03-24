@@ -1,5 +1,6 @@
 <li class="{% if active_menu == 'images' %}active{% endif %}"><a href="{% url 'images:index_images' %}">Images</a></li>
 <li class="{% if active_menu == 'aoi' %}active{% endif %}"><a href="{% url 'aoi:list' %}">AOI</a></li>
 <li class="{% if active_menu == 'participants' %}active{% endif %}"><a href="{% url 'participants:list' %}">Participants</a></li>
-<li class="{% if active_menu == 'tracker' %}active{% endif %}"><a href="{% url 'tracker:detail_tracker' %}">Eye Tracker</a></li>
+<li class="{% if active_menu == 'trials' %}active{% endif %}"><a href="{% url 'trials:list' %}">Trials</a></li>
+<!--<li class="{% if active_menu == 'tracker' %}active{% endif %}"><a href="{% url 'tracker:detail_tracker' %}">Eye Tracker</a></li>-->
 <li class="{% if active_menu == 'statistics' %}active{% endif %}"><a href="{% url 'statistics:list' %}">Statistics</a></li>

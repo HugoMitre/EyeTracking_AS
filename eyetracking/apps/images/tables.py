@@ -1,10 +1,11 @@
-import django_tables2 as tables
-from django_tables2.utils import A  # alias for Accessor
-from .models import Image
 from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
+import django_tables2 as tables
+from django_tables2.utils import A  # alias for Accessor
 from eyetracking.settings import MEDIA_URL
+from .models import Image
+
 
 class PhotoTable(tables.Table):
     id = tables.Column(orderable=True)

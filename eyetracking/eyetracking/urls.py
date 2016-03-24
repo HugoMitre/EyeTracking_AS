@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^participants/', include('apps.participants.urls', namespace='participants')),
     url(r'^aoi/', include('apps.aoi.urls', namespace='aoi')),
     url(r'^statistics/', include('apps.statistics.urls', namespace='statistics')),
+    url(r'^trials/', include('apps.trials.urls', namespace='trials'))
 ]
 
 if settings.DEBUG:

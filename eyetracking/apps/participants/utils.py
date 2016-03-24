@@ -1,6 +1,7 @@
 from django_tables2 import SingleTableView
 from django_tables2.config import RequestConfig
 
+
 class PagedFilteredTableView(SingleTableView):
     filter_class = None
     #formhelper_class = None
