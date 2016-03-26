@@ -10,3 +10,4 @@ django-tables2==1.0.4
 cookiecutter==1.2.1
 django-compressor==2.0
 numpy==1.10.4
+scipy==0.17.0

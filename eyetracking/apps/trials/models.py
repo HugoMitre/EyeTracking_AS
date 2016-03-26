@@ -1,9 +1,9 @@
 from django.core.urlresolvers import reverse
 from django.db import models, IntegrityError, transaction
 from django.db.models import signals
-from eyetracking.settings import MEDIA_ROOT
-from apps.participants.models import Participant
-from apps.images.models import Image
+from django.conf import settings
+from ..participants.models import Participant
+from ..images.models import Image
 
 
 class Trial(models.Model):
@@ -12,6 +12,7 @@ class Trial(models.Model):
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
     comments = models.TextField(blank=True, null=True)
+    percentage_samples = models.FloatField(blank=True, null=True)
     participant = models.ForeignKey(Participant, blank=True, null=True)
     image = models.ForeignKey(Image, blank=True, null=True)
 
@@ -20,7 +21,7 @@ class Trial(models.Model):
 
     def handle_uploaded_file(self, file):
         # Read file
-        f = open(MEDIA_ROOT + '/' + file, 'r')
+        f = open(settings.MEDIA_ROOT + '/' + file, 'r')
         lines = f.readlines()
         f.close()
 
@@ -119,7 +120,7 @@ class TrialData(models.Model):
         percentage_missing = (missing * 100.00)/total
         percentage_good = 100 - percentage_missing
 
-        return str(round(percentage_good, 2)) + '%'
+        return str(round(percentage_good, 2))
 
 
 def update_trial(sender, instance, created, **kwargs):
@@ -135,15 +136,8 @@ def update_trial(sender, instance, created, **kwargs):
 
     try:
         with transaction.atomic():
-            # Assign data
-            instance.participant = participant
-            instance.image = image
-            instance.calibration_points = data['calibration_points']
-            instance.start_date = data['start_date']
-            instance.end_date = data['end_date']
-            instance.comments = data['comments']
-            instance.save()
 
+            # Add eye data
             for eye in eye_data:
 
                 TrialData.objects.create(timestamp=eye['timestamp'],
@@ -171,6 +165,17 @@ def update_trial(sender, instance, created, **kwargs):
                                            right_pupil_y=eye['Rpupily'],
                                            distance=eye['Distance'],
                                            trial=instance)
+
+            # Assign data
+            instance.participant = participant
+            instance.image = image
+            instance.calibration_points = data['calibration_points']
+            instance.start_date = data['start_date']
+            instance.end_date = data['end_date']
+            instance.comments = data['comments']
+            instance.percentage_samples = TrialData.percentage_samples(instance.pk)
+            instance.save()
+
     except IntegrityError:
         instance.delete()
 

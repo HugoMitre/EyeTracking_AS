@@ -1,4 +1,4 @@
-<a class="btn btn-primary btn-sm tooltip-btn" data-toggle="tooltip" data-placement="top" data-original-title="View Data" href="{% url 'trials:data' record.pk %}"><i class="fa fa-eye"></i></a>
+<a class="btn btn-default btn-sm tooltip-btn" data-toggle="tooltip" data-placement="top" data-original-title="View Data" href="{% url 'trials:data' record.pk %}"><i class="fa fa-eye"></i></a>
 
 <form class="form-inline" method="POST" action="{% url 'trials:delete' record.pk %}">
     {% csrf_token %}
