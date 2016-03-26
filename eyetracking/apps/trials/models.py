@@ -2,6 +2,8 @@ from django.core.urlresolvers import reverse
 from django.db import models, IntegrityError, transaction
 from django.db.models import signals
 from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from ..participants.models import Participant
 from ..images.models import Image
 
@@ -122,64 +124,66 @@ class TrialData(models.Model):
 
         return str(round(percentage_good, 2))
 
-
+@receiver(post_save, sender=Trial)
 def update_trial(sender, instance, created, **kwargs):
-    # Disconnect signal to avoid recursion
-    signals.post_save.disconnect(update_trial, sender=sender)
 
-    # Get data file
-    data, eye_data = Trial().handle_uploaded_file(str(instance.file))
+    if created:
 
-    # Get instances
-    participant = Participant.objects.get(id=data['participant'])
-    image = Image.objects.get(id=data['image'])
+        # Disconnect signal to avoid recursion
+        signals.post_save.disconnect(update_trial, sender=sender)
 
-    try:
-        with transaction.atomic():
+        # Get data file
+        data, eye_data = Trial().handle_uploaded_file(str(instance.file))
 
-            # Add eye data
-            for eye in eye_data:
+        # Get instances
+        participant = Participant.objects.get(id=data['participant'])
+        image = Image.objects.get(id=data['image'])
 
-                TrialData.objects.create(timestamp=eye['timestamp'],
-                                           time=eye['time'],
-                                           fix=eye['fix'],
-                                           state=eye['state'],
-                                           raw_x=eye['rawx'],
-                                           raw_y=eye['rawy'],
-                                           avg_x=eye['avgx'],
-                                           avg_y=eye['avgy'],
-                                           pupil_size=eye['psize'],
-                                           left_raw_x=eye['Lrawx'],
-                                           left_raw_y=eye['Lrawy'],
-                                           left_avg_x=eye['Lavgx'],
-                                           left_avg_y=eye['Lavgy'],
-                                           left_pupil_size=eye['Lpsize'],
-                                           left_pupil_x=eye['Lpupilx'],
-                                           left_pupil_y=eye['Lpupily'],
-                                           right_raw_x=eye['Rrawx'],
-                                           right_raw_y=eye['Rrawy'],
-                                           right_avg_x=eye['Ravgx'],
-                                           right_avg_y=eye['Ravgy'],
-                                           right_pupil_size=eye['Rpsize'],
-                                           right_pupil_x=eye['Rpupilx'],
-                                           right_pupil_y=eye['Rpupily'],
-                                           distance=eye['Distance'],
-                                           trial=instance)
+        try:
+            with transaction.atomic():
 
-            # Assign data
-            instance.participant = participant
-            instance.image = image
-            instance.calibration_points = data['calibration_points']
-            instance.start_date = data['start_date']
-            instance.end_date = data['end_date']
-            instance.comments = data['comments']
-            instance.percentage_samples = TrialData.percentage_samples(instance.pk)
-            instance.save()
+                # Add eye data
+                for eye in eye_data:
 
-    except IntegrityError:
-        instance.delete()
+                    TrialData.objects.create(timestamp=eye['timestamp'],
+                                               time=eye['time'],
+                                               fix=eye['fix'],
+                                               state=eye['state'],
+                                               raw_x=eye['rawx'],
+                                               raw_y=eye['rawy'],
+                                               avg_x=eye['avgx'],
+                                               avg_y=eye['avgy'],
+                                               pupil_size=eye['psize'],
+                                               left_raw_x=eye['Lrawx'],
+                                               left_raw_y=eye['Lrawy'],
+                                               left_avg_x=eye['Lavgx'],
+                                               left_avg_y=eye['Lavgy'],
+                                               left_pupil_size=eye['Lpsize'],
+                                               left_pupil_x=eye['Lpupilx'],
+                                               left_pupil_y=eye['Lpupily'],
+                                               right_raw_x=eye['Rrawx'],
+                                               right_raw_y=eye['Rrawy'],
+                                               right_avg_x=eye['Ravgx'],
+                                               right_avg_y=eye['Ravgy'],
+                                               right_pupil_size=eye['Rpsize'],
+                                               right_pupil_x=eye['Rpupilx'],
+                                               right_pupil_y=eye['Rpupily'],
+                                               distance=eye['Distance'],
+                                               trial=instance)
 
-    # Connect signal
-    signals.post_save.connect(update_trial, sender=sender)
+                # Assign data
+                instance.participant = participant
+                instance.image = image
+                instance.calibration_points = data['calibration_points']
+                instance.start_date = data['start_date']
+                instance.end_date = data['end_date']
+                instance.comments = data['comments']
+                instance.percentage_samples = TrialData.percentage_samples(instance.pk)
+                instance.save()
 
-signals.post_save.connect(update_trial, sender=Trial)
+        except IntegrityError:
+            instance.delete()
+
+        # Connect signal
+        signals.post_save.connect(update_trial, sender=sender)
+

@@ -5,10 +5,10 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.db import IntegrityError, transaction
 from django.db.models import Q
-from vanilla import CreateView, DetailView, RedirectView
+from vanilla import CreateView, DetailView, UpdateView, RedirectView
 from django_tables2 import SingleTableView
 from ..statistics.utils import Utils
-from .forms import TrialForm
+from .forms import TrialUploadForm, TrialUpdateForm
 from .models import Trial, TrialData
 from .tables import TrialTable, TrialDataTable
 
@@ -29,7 +29,7 @@ class TrialList(SingleTableView):
 
 class TrialCreate(SuccessMessageMixin, CreateView):
     model = Trial
-    form_class = TrialForm
+    form_class = TrialUploadForm
     template_name_suffix = '_create'
     success_url = reverse_lazy('trials:list')
     success_message = "Trial was created successfully"
@@ -45,6 +45,14 @@ class TrialDetail(DetailView):
         # Add in a QuerySet duration
         context['duration'] = context['object'].end_date - context['object'].start_date
         return context
+
+
+class TrialUpdate(SuccessMessageMixin, UpdateView):
+    model = Trial
+    form_class = TrialUpdateForm
+    template_name_suffix = '_update'
+    success_url = reverse_lazy('trials:list')
+    success_message = "Trial was updated successfully"
 
 
 class TrialDelete(RedirectView):
