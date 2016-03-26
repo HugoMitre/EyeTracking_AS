@@ -12,9 +12,3 @@ class ParticipantForm(forms.ModelForm):
     class Meta:
         model = Participant
         fields = ['first_name', 'last_name', 'age', 'gender', 'comments']
-
-
-class FileForm(forms.ModelForm):
-
-    title = forms.CharField(max_length=50)
-    file = forms.FileField()

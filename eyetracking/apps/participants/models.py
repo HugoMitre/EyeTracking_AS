@@ -21,7 +21,6 @@ class Participant(models.Model):
         return reverse('participants:detail', args=[str(self.id)])
 
     def get_total(self):
-
         return Participant.objects.count()
 
     def count_gender(self, total):

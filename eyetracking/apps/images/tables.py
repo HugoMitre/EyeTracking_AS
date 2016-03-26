@@ -13,11 +13,11 @@ class PhotoTable(tables.Table):
     original_name = tables.LinkColumn('images:detail_image', args=[A('pk')])
     width = tables.Column()
     actions = tables.TemplateColumn(orderable=False, empty_values=(), template_name='images/actions.html')
-    size = tables.Column(orderable=False)
+    #size = tables.Column(orderable=False)
 
     class Meta:
         model = Image
-        fields = ('id', 'resized_image', 'original_name', 'size', 'width')
+        fields = ('id', 'resized_image', 'original_name', 'width')
 
     def render_resized_image(self, value, record):
         link_detail = reverse("images:detail_image", args=[record.pk])

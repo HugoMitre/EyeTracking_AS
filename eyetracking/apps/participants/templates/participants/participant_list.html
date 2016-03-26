@@ -14,19 +14,19 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container-fluid well">
-        <div class="col-lg-3">
-            <p>Mean = {{ view.mean }}</p>
+    {% include 'participants/participant_search.html' %}
+
+    <div class="container-fluid">
+        <div class="col-lg-10">
+            {% render_table table "table.html" %}
         </div>
-        <div class="col-lg-3">
-            <p>SD = {{ view.sd }}</p>
-        </div>
-        <div class="col-lg-3">
-            <p><i class="fa fa-male"></i> = {{ view.male }}</p>
-        </div>
-        <div class="col-lg-3">
-            <p><i class="fa fa-female"></i> = {{ view.female }}</p>
+        <div class="col-lg-2 well" style="margin-top: 20px;">
+             <div class="col-lg-12" >
+                <p>Mean = {{ view.mean }}</p>
+                <p>SD = {{ view.sd|floatformat:4 }}</p>
+                <p><i class="fa fa-male"></i> = {{ view.male }}</p>
+                <p><i class="fa fa-female"></i> = {{ view.female }}</p>
+            </div>
         </div>
     </div>
-    {% render_table table "table.html" %}
 {% endblock %}

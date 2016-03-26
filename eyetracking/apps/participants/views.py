@@ -2,26 +2,32 @@ from django.core.urlresolvers import reverse_lazy
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from vanilla import CreateView, DetailView, UpdateView, RedirectView
 from django_tables2 import SingleTableView
 from .forms import ParticipantForm
 from .models import Participant
 from .tables import ParticipantTable
-from .filters import ParticipantFilter
-from .utils import PagedFilteredTableView
 
 
 class ParticipantList(SingleTableView):
-    #PagedFilteredTableView
     model = Participant
     table_class = ParticipantTable
     table_pagination = {'per_page': 10}
-    #filter_class = ParticipantFilter
 
+    # Additional data
     total = Participant().get_total()
     male, female = Participant().count_gender(total)
     mean = Participant().mean()
     sd = Participant().sd()
+
+    def get_table_data(self):
+        data = Participant.objects.all()
+        if self.request.GET.get('search'):
+            value = self.request.GET.get('search')
+            data = data.filter(Q(first_name__contains=value) | Q(last_name__contains=value)
+                               | Q(gender=value) | Q(age=value))
+        return data
 
 
 class ParticipantCreate(SuccessMessageMixin, CreateView):
@@ -29,7 +35,7 @@ class ParticipantCreate(SuccessMessageMixin, CreateView):
     form_class = ParticipantForm
     template_name_suffix = '_create'
     success_url = reverse_lazy('participants:list')
-    success_message = "%(first_name)s %(last_name)s was created successfully"
+    success_message = "Participant '%(first_name)s %(last_name)s' was created successfully"
 
 
 class ParticipantDetail(DetailView):
@@ -41,7 +47,7 @@ class ParticipantUpdate(SuccessMessageMixin, UpdateView):
     form_class = ParticipantForm
     template_name_suffix = '_update'
     success_url = reverse_lazy('participants:list')
-    success_message = "%(first_name)s %(last_name)s was updated successfully"
+    success_message = "Participant '%(first_name)s %(last_name)s' was updated successfully"
 
 
 class ParticipantDelete(RedirectView):
@@ -53,5 +59,5 @@ class ParticipantDelete(RedirectView):
         model = get_object_or_404(Participant, pk=kwargs['pk'])
         name = model.first_name + ' ' + model.last_name
         model.delete()
-        messages.success(self.request, name + ' was deleted successfully')
+        messages.success(self.request,"Participant '" + name + "' was deleted successfully")
         return super(ParticipantDelete, self).get_redirect_url(*args, **kwargs)
