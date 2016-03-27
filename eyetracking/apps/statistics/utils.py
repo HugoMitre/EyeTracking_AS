@@ -65,23 +65,31 @@ class Utils():
         # Call function
         y_new = f(x_new)
 
+        data_new = data
+
         # Replace zeros with values interpolated
         i = 0
         for x in x_new[0]:
-            data[x] = y_new[0][0][i]
+            data_new[x] = y_new[0][0][i]
             i+=1
+
+        return data_new
 
     def hampel(self, data, win_length=12, n_sigma=3):
 
         half_win_length = win_length/2
+        data_new = data
 
         for i in range(half_win_length, len(data)-half_win_length+1):
             # Calculate median
             med = np.median(data[i-half_win_length:i+half_win_length])
             # Median absolute deviation (1.4826 = consistency constant)
             mad = 1.4826 * np.median(np.abs(data[i-half_win_length:i+half_win_length] - med))
-            if data[i]  > n_sigma*mad or data[i] < n_sigma*mad:
-                data[i] = med
+
+            if data_new[i]  > n_sigma*mad or data_new[i] < n_sigma*mad:
+                data_new[i] = med
+
+        return data_new
 
     def split_values(self, dates, pupil):
         start_date = dates[0]
@@ -104,52 +112,7 @@ class Utils():
 
         return baseline, trial
 
-    def get_features(self, image_id):
-
-        baseline_array = []
-        apcps_array = []
-        mpd_array = []
-        mpdc_array =[]
-
-        # Get trials with the image
-        trials = Trial.objects.filter(image=image_id)
-
-        for trial in trials:
-
-            # Init utils
-            utils = Utils()
-
-            # Get all trial data
-            eye_data = TrialData.objects.filter(trial=trial.pk)
-
-            # Average left and right eyes
-            pupil, dates = utils.get_data(eye_data)
-
-            # Linear interpolation
-            pupil = utils.linear_interpolation(pupil)
-
-            # Split baseline and trial
-            baseline_pupil, trial_pupil = utils.split_values(dates, pupil)
-
-            # Measures
-            average_baseline = sum(baseline_pupil) / len(baseline_pupil)
-            baseline_array.append(average_baseline)
-
-            pcps = [(x - average_baseline)/average_baseline for x in trial_pupil]
-            apcps_array.append(sum(pcps) / len(pcps))
-
-            mpd = sum(trial_pupil) / len(trial_pupil)
-            mpd_array.append(mpd)
-            mpdc_array.append(mpd - average_baseline)
-
-        baseline = round(sum(baseline_array) / len(baseline_array), 4)
-        apcps = round(sum(apcps_array) / len(apcps_array), 4)
-        mpd = round(sum(mpd_array) / len(mpd_array), 4)
-        mpdc = round(sum(mpdc_array) / len(mpdc_array), 4)
-
-        return baseline, apcps, mpd, mpdc
-
-    def remove_outliers(self, data, n_sigma=2):
+    def remove_outliers(self, data, n_sigma=3):
 
         # Convert array to ndarray
         data_np =  np.array(data)
@@ -174,7 +137,7 @@ class Utils():
 
         return data_new
 
-    def remove_outliers_distance(self, data, n_sigma=2):
+    def remove_outliers_distance(self, data):
 
         # Convert array to ndarray
         data_np =  np.array(data)
@@ -186,9 +149,7 @@ class Utils():
 
         data_np[outlier] = 0.0
 
-        data_new = data_np.tolist()
-
-        Utils().linear_interpolation(data_new)
+        data_new = Utils().linear_interpolation(data_np.tolist())
 
         return data_new
 
@@ -208,15 +169,15 @@ class Utils():
         raw_distance = eye_data['distance'][:]
 
         # Linear interpolation
-        utils.linear_interpolation(eye_data['pupil'])
+        eye_data['pupil'] = utils.linear_interpolation(eye_data['pupil'])
 
         # Remove outliers distance
         eye_data['distance'] = utils.remove_outliers_distance(eye_data['distance'])
         #eye_data['distance'] = utils.remove_outliers(eye_data['distance'])
 
         # Hampel filter
-        utils.hampel(eye_data['pupil'])
-        utils.hampel(eye_data['distance'])
+        eye_data['pupil'] = utils.hampel(eye_data['pupil'])
+        eye_data['distance'] = utils.hampel(eye_data['distance'])
 
         # Fixed pupil with distance
         foco = 0.5
@@ -242,3 +203,44 @@ class Utils():
         return {'raw_pupil':raw_pupil, 'smooth_pupil': eye_data['pupil'], 'fixed_pupil_distance': fixed_pupil_distance,
                 'raw_distance':raw_distance, 'smooth_distance':eye_data['distance'],
                 'first_index_baseline':first_index_baseline, 'last_index_baseline':last_index_baseline}
+
+    def get_features(self, trial_id):
+
+        # Init utils
+        utils = Utils()
+
+        # Get all trial data
+        eye_data = TrialData.objects.filter(trial=trial_id)
+
+        # Average left and right eyes
+        eye_data = utils.get_data(eye_data)
+
+        # Linear interpolation
+        eye_data['pupil'] = utils.linear_interpolation(eye_data['pupil'])
+
+        # Remove outliers distance
+        eye_data['distance'] = utils.remove_outliers_distance(eye_data['distance'])
+        #eye_data['distance'] = utils.remove_outliers(eye_data['distance'])
+
+        # Hampel filter
+        eye_data['pupil'] = utils.hampel(eye_data['pupil'])
+        eye_data['distance'] = utils.hampel(eye_data['distance'])
+
+        # Fixed pupil with distance
+        foco = 0.5
+        fixed_pupil_distance = [(((distance[1]+foco)*eye_data['pupil'][distance[0]])/foco)/100 for distance in enumerate(eye_data['distance'])]
+
+        # Split baseline and trial
+        baseline_pupil, trial_pupil = utils.split_values(eye_data['dates'], fixed_pupil_distance)
+
+        # Baseline
+        average_baseline = sum(baseline_pupil) / len(baseline_pupil)
+
+        # Features
+        pcps = [(x - average_baseline)/average_baseline for x in trial_pupil]
+        apcps = round(sum(pcps) / len(pcps), 4)
+
+        mpd = round(sum(trial_pupil) / len(trial_pupil), 4)
+        mpdc = round(mpd - average_baseline, 4)
+
+        return {'apcps':apcps, 'mpd':mpd, 'mpdc':mpdc}

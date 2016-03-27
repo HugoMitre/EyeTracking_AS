@@ -20,13 +20,19 @@ class StatisticList(TemplateResponseMixin, TemplateView):
         # Call the base implementation first to get a context
         context = super(StatisticList, self).get_context_data(**kwargs)
 
-        trials = Trial.objects.filter(percentage_samples__gte=79.99, resolved=True)
+        trials = Trial.objects.filter(percentage_samples__gte=79.99, resolved=True, level=1)
 
         data =[]
+        all_features = []
+
         for trial in trials:
+            features = Utils().get_features(trial.pk)
+            all_features.append(features)
+
             data_trial = {'participant_name':trial.participant.first_name + ' ' + trial.participant.last_name,
                           'image_name':trial.image.original_name, 'duration':trial.end_date - trial.start_date,
-                          'errors':2, 'actions':trial.pk}
+                          'errors':trial.errors, 'apcps':features['apcps'],  'mpd':features['mpd'],
+                          'mpdc':features['mpdc'], 'actions':trial.pk}
 
             data.append(data_trial)
 
