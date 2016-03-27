@@ -1,71 +1,29 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% load render_table from django_tables2 %}
 
 {% block head_files %}
-    <link rel="stylesheet" href="{% static 'statistics/css/plugins/slick/slick.css' %}"/>
-    <link rel="stylesheet" href="{% static 'statistics/css/plugins/slick/slick-theme.css' %}"/>
-    <link rel="stylesheet" href="{% static 'statistics/css/plugins/c3/c3.min.css' %}"/>
     <link rel="stylesheet" href="{% static 'statistics/css/statistics.css' %}"/>
 {% endblock %}
 
-{% block title %} Statistics {% endblock %}
+{% block title %} View Statistics {% endblock %}
 
 {% block menu %}
     {% include 'menu.html' with active_menu='statistics' %}
 {% endblock %}
 
-{% block page_title %} Statistics {% endblock %}
+{% block page_title %} View Statistics {% endblock %}
 
 {% block content %}
-
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="slider">
-                {% for image in images %}
-                    <div class='photo'>
-                      <img id='{{ image.id }}' class="img-slider" width="auto" height="93px" src="{{ MEDIA_URL }}{{ image.resized_image }}">
-                      <h6>{{ image.original_name }}</h6>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    <br>
-
-    <div class="row">
-        <div class="col-lg-6">
-            <form>
-              <div class="form-group">
-                  <label class="control-label">Features</label>
-                  <select class="form-control">
-                      <option>Visit Count</option>
-                      <option>Total Fixation Duration</option>
-                      <option>Percentage Fixated</option>
-                  </select>
-              </div>
-            </form>
-
-            <table id="table-features" class="table table-bordered table-striped">
-
-            </table>
-        </div>
-        <div class="col-xs-6 col-md-6">
-            <div id="chart"></div>
-        </div>
-    </div>
-{% endblock %}
-
-{% block body_files_min %}
-    <script src="{% static 'statistics/js/plugins/slick/slick.min.js' %}"></script>
-    <script src="{% static 'statistics/js/plugins/d3/d3.min.js' %}"></script>
-    <script src="{% static 'statistics/js/plugins/c3/c3.min.js' %}"></script>
+    {% include 'statistics/statistic_search.html' %}
+    {% render_table table "statistics/statistic_tfoot.html" %}
 {% endblock %}
 
 {% block body_files %}
     <script src="{% static 'statistics/js/statistics.js' %}"></script>
     <script>
-        slider('.slider');
-        startStatistics();
+        //slider('.slider');
+        //startStatistics();
+        //$("#zoom_05").elevateZoom({ zoomType: "inner", cursor: "crosshair" });
     </script>
 {% endblock %}
