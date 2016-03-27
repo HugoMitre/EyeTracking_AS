@@ -7,10 +7,9 @@ from django.db import IntegrityError, transaction
 from django.db.models import Q
 from vanilla import CreateView, DetailView, UpdateView, RedirectView
 from django_tables2 import SingleTableView
-from ..statistics.utils import Utils
 from .forms import TrialUploadForm, TrialUpdateForm
 from .models import Trial, TrialData
-from .tables import TrialTable, TrialDataTable
+from .tables import TrialTable
 
 
 class TrialList(SingleTableView):
@@ -110,47 +109,3 @@ class TrialDelete(RedirectView):
             messages.error(self.request, 'The request was unsuccessful')
 
         return super(TrialDelete, self).get_redirect_url(*args, **kwargs)
-
-
-class TrialDataList(SingleTableView):
-    model = TrialData
-    table_class = TrialDataTable
-    table_pagination = {'per_page': 50}
-
-    def get_table_data(self):
-        pk = self.kwargs.get('pk')
-        data = TrialData.objects.filter(trial=pk)
-        if self.request.GET.get('search'):
-            value = self.request.GET.get('search')
-            if value:
-                data = data.filter(Q(avg_x=value) | Q(avg_y=value)
-                                   | Q(left_pupil_size=value) | Q(right_pupil_size=value))
-        return data
-
-    def get_context_data(self, **kwargs):
-        # Call the base implementation first to get a context
-        context = super(TrialDataList, self).get_context_data(**kwargs)
-
-        # Add in a QuerySet data trial
-        pk = self.kwargs.get('pk')
-
-        model = get_object_or_404(Trial, pk=pk)
-        context['participant_name'] = model.participant.first_name + ' ' + model.participant.last_name
-        context['image_name'] = model.image.original_name
-        context['duration'] = model.end_date - model.start_date
-
-        data_trial = Utils().data_trial(pk)
-        context['raw_pupil'] = data_trial['raw_pupil']
-        context['smooth_pupil'] = data_trial['smooth_pupil']
-        context['fixed_pupil_distance'] = data_trial['fixed_pupil_distance']
-        context['raw_distance'] = data_trial['raw_distance']
-        context['smooth_distance'] = data_trial['smooth_distance']
-        context['first_index_baseline'] = data_trial['first_index_baseline']
-        context['last_index_baseline'] = data_trial['last_index_baseline']
-
-        search = ''
-        if self.request.GET.get('search'):
-            search = self.request.GET.get('search')
-        context['search'] = search
-
-        return context

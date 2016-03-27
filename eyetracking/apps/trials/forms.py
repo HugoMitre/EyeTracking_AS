@@ -14,4 +14,4 @@ class TrialUpdateForm(forms.ModelForm):
 
 	class Meta:
 		model = Trial
-		fields = ['resolved', 'errors', 'comments']
+		fields = ['resolved', 'level', 'errors', 'comments']

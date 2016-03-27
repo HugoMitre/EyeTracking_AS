@@ -9,7 +9,7 @@
 {% block title %} View Data of {{ participant_name }} {% endblock %}
 
 {% block menu %}
-    {% include 'menu.html' with active_menu='trials' %}
+    {% include 'menu.html' with active_menu='statistics' %}
 {% endblock %}
 
 {% block page_title %} View Data of {{ participant_name }} {% endblock %}
@@ -22,7 +22,7 @@
             <div id="chart"></div>
         </div>
     </div>
-    {% include 'trials/trialdata_search.html' %}
+    {% include 'statistics/statistic_trialdata_search.html' %}
     {% render_table table "table.html" %}
 {% endblock %}
 
@@ -32,7 +32,7 @@
 {% endblock %}
 
 {% block body_files %}
-    <script src="{% static 'trials/js/trials.js' %}"></script>
+    <script src="{% static 'statistics/js/statistics.js' %}"></script>
     <script>
         generateLineChart({{ raw_pupil }}, {{ smooth_pupil }}, {{ fixed_pupil_distance }}, {{ raw_distance }}, {{ smooth_distance }}, {{ first_index_baseline }}, {{ last_index_baseline }});
     </script>

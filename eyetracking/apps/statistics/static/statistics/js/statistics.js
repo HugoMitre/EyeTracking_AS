@@ -1,73 +1,33 @@
 //Functions
-var slider;
-var startStatistics;
-var changeImage;
+var generateLineChart;
 
-//AOI
-var activeImage;
-var urlGetDataShapes = 'image';
-var divImage = '.photo';
-var imgSlider = '.img-slider';
+generateLineChart = function(rawPupil, smoothPupil, fixedPupilDistance, rawDistance, smoothDistance, firstIndexBaseline, lastIndexBaseline){
+    // Add Legends
+    rawPupil.splice(0, 0, 'Raw pupil');
+    smoothPupil.splice(0, 0, 'Smooth pupil');
+    fixedPupilDistance.splice(0, 0, '(Smooth + distance) pupil');
+    rawDistance.splice(0, 0, 'Raw distance');
+    smoothDistance.splice(0, 0, 'Smooth distance');
 
-slider = function(idSlider){
-    $(idSlider).slick({
-        dots: true,
-        infinite: false,
-        speed: 300,
-        slidesToShow: 4,
-        slidesToScroll: 4,
-        responsive: [
-            {
-                breakpoint: 1024,
-                settings: {
-                    slidesToShow: 3,
-                    slidesToScroll: 3,
-                    infinite: true,
-                    dots: true
-                }
-            },
-            {
-                breakpoint: 600,
-                settings: {
-                    slidesToShow: 2,
-                    slidesToScroll: 2
-                }
-            },
-            {
-                breakpoint: 480,
-                settings: {
-                    slidesToShow: 1,
-                    slidesToScroll: 1
-                }
+    var chart = c3.generate({
+        data: {
+            columns: [
+                rawPupil,
+                smoothPupil,
+                rawDistance,
+                smoothDistance,
+                fixedPupilDistance
+            ]
+        },
+        grid: {
+            x: {
+                lines: [
+                    {value: firstIndexBaseline, text: 'Start baseline'},
+                    {value: lastIndexBaseline, text: 'End baseline'}
+                ]
             }
-        ]
+        }
     });
-};
 
-changeImage = function(element){
-    $.get(urlGetDataShapes, {'image_id':element.attr('id')}).success(function(data){
-        activeImage = element.attr('id');
-
-        //Set background for selected image
-        $(divImage).css('background-color', '');
-        element.parent().css('background-color', '#CCC');
-
-        console.log(data);
-        $('#td_baseline').html(data['features']['baseline']);
-        $('#td_apcps').html(data['features']['apcps']);
-        $('#td_mpd').html(data['features']['mpd']);
-        $('#td_mpdc').html(data['features']['mpdc']);
-
-
-
-    }).fail(function() {
-        toastr.error('The request was unsuccessful', 'Error');
-    });
-};
-
-startStatistics = function(){
-    //Change Image
-    $(imgSlider).on('click', function(){ changeImage($(this)); });
-
-
+    chart.hide(['Raw distance', 'Smooth distance', '(Smooth + distance) pupil']);
 };

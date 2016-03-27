@@ -1,5 +1,5 @@
 from django.core.urlresolvers import reverse
-from django.db import models, IntegrityError, transaction
+from django.db import models, transaction
 from django.db.models import signals
 from django.conf import settings
 from django.db.models.signals import post_save
@@ -19,6 +19,7 @@ class Trial(models.Model):
     image = models.ForeignKey(Image, blank=True, null=True)
     errors = models.IntegerField(blank=True, default='0')
     resolved = models.BooleanField(blank=True, default='')
+    level = models.IntegerField(blank=True, default=1)
 
     def get_absolute_url(self):
         return reverse('trials:detail', args=[str(self.id)])

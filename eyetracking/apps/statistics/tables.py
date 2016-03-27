@@ -1,6 +1,6 @@
 import itertools
 import django_tables2 as tables
-
+from ..trials.models import TrialData
 
 class StatisticsTable(tables.Table):
     row_number = tables.Column(empty_values=(), verbose_name='No.', sortable=False)
@@ -25,3 +25,17 @@ class StatisticsTable(tables.Table):
 
     def render_row_number(self):
         return next(self.counter) + 1
+
+
+class TrialDataTable(tables.Table):
+
+    timestamp = tables.DateTimeColumn(verbose_name='Timestamp')
+    avg_x = tables.Column(verbose_name='Average X')
+    avg_y = tables.Column(verbose_name='Average Y')
+    left_pupil_size = tables.Column(verbose_name='Left pupil size')
+    right_pupil_size = tables.Column(verbose_name='Right pupil size')
+    distance = tables.Column(verbose_name='Distance')
+
+    class Meta:
+        model = TrialData
+        fields = ('timestamp', 'avg_x', 'avg_y', 'left_pupil_size', 'right_pupil_size', 'distance')
