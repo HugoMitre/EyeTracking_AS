@@ -48,6 +48,20 @@
             <td>{{ object.percentage_samples }} %</td>
         </tr>
         <tr>
+            <td><strong>Solved</strong></td>
+            <td>
+                {% if object.resolved %}
+                    <span class="label label-success">Yes</span>
+                {% else %}
+                    <span class="label label-danger">No</span>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td><strong>Errors</strong></td>
+            <td>{{ object.errors }}</td>
+        </tr>
+        <tr>
             <td><strong>Comments</strong></td>
             <td>{{ object.comments }}</td>
         </tr>

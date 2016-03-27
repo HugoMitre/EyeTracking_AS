@@ -11,11 +11,12 @@ class TrialTable(tables.Table):
     participant = tables.Column(verbose_name='Participant')
     duration = tables.Column(empty_values=())
     percentage_samples = tables.Column(verbose_name='Samples')
+    resolved = tables.Column(verbose_name='Solved')
     actions = tables.TemplateColumn(orderable=False, empty_values=(), template_name='trials/trial_actions.html')
 
     class Meta:
         model = Trial
-        fields = ('image', 'trial_name', 'participant', 'duration', 'percentage_samples')
+        fields = ('image', 'trial_name', 'participant', 'duration', 'percentage_samples', 'resolved')
 
     def render_image(self, value, record):
         return mark_safe('<img src="' + settings.MEDIA_URL + '/%s" />' % escape(value.resized_image))
@@ -31,6 +32,9 @@ class TrialTable(tables.Table):
 
     def render_percentage_samples(self, value):
         return str(value) + ' %'
+
+    def render_resolved(self, value):
+        return mark_safe('''<span class="label label-success">Yes</span>''') if value else mark_safe('''<span class="label label-danger">No</span>''')
 
 
 class TrialDataTable(tables.Table):

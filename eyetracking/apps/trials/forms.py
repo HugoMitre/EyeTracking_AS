@@ -10,7 +10,8 @@ class TrialUploadForm(forms.ModelForm):
 		fields = ['file']
 
 class TrialUpdateForm(forms.ModelForm):
+	resolved = forms.BooleanField(label='Solved')
 
 	class Meta:
 		model = Trial
-		fields = ['comments']
+		fields = ['resolved', 'errors', 'comments']

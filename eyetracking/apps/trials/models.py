@@ -17,6 +17,8 @@ class Trial(models.Model):
     percentage_samples = models.FloatField(blank=True, null=True)
     participant = models.ForeignKey(Participant, blank=True, null=True)
     image = models.ForeignKey(Image, blank=True, null=True)
+    errors = models.IntegerField(blank=True, default='0')
+    resolved = models.BooleanField(blank=True, default='')
 
     def get_absolute_url(self):
         return reverse('trials:detail', args=[str(self.id)])
@@ -132,14 +134,14 @@ def update_trial(sender, instance, created, **kwargs):
         # Disconnect signal to avoid recursion
         signals.post_save.disconnect(update_trial, sender=sender)
 
-        # Get data file
-        data, eye_data = Trial().handle_uploaded_file(str(instance.file))
-
-        # Get instances
-        participant = Participant.objects.get(id=data['participant'])
-        image = Image.objects.get(id=data['image'])
-
         try:
+            # Get data file
+            data, eye_data = Trial().handle_uploaded_file(str(instance.file))
+
+            # Get instances
+            participant = Participant.objects.get(id=data['participant'])
+            image = Image.objects.get(id=data['image'])
+
             with transaction.atomic():
 
                 # Add eye data
@@ -181,7 +183,7 @@ def update_trial(sender, instance, created, **kwargs):
                 instance.percentage_samples = TrialData.percentage_samples(instance.pk)
                 instance.save()
 
-        except IntegrityError:
+        except Exception:
             instance.delete()
 
         # Connect signal

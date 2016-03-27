@@ -6,15 +6,17 @@
     <link rel="stylesheet" href="{% static 'statistics/css/plugins/c3/c3.min.css' %}"/>
 {% endblock %}
 
-{% block title %} View Data {% endblock %}
+{% block title %} View Data of {{ participant_name }} {% endblock %}
 
 {% block menu %}
     {% include 'menu.html' with active_menu='trials' %}
 {% endblock %}
 
-{% block page_title %} View Data {% endblock %}
+{% block page_title %} View Data of {{ participant_name }} {% endblock %}
 
 {% block content %}
+    <hr>
+    <h4>Trial {{ image_name }} ({{ duration }})</h4>
     <div class="row">
         <div class="col-lg-12">
             <div id="chart"></div>
@@ -32,6 +34,6 @@
 {% block body_files %}
     <script src="{% static 'trials/js/trials.js' %}"></script>
     <script>
-        generateLineChart({{ raw }}, {{ pupil }}, {{ first_index_baseline }}, {{ last_index_baseline }});
+        generateLineChart({{ raw_pupil }}, {{ smooth_pupil }}, {{ fixed_pupil_distance }}, {{ raw_distance }}, {{ smooth_distance }}, {{ first_index_baseline }}, {{ last_index_baseline }});
     </script>
 {% endblock %}

@@ -22,9 +22,21 @@ class TrialList(SingleTableView):
         data = Trial.objects.all()
         if self.request.GET.get('search'):
             value = self.request.GET.get('search')
-            data = data.filter(Q(image__original_name__contains=value) | Q(participant__first_name__contains=value)
-                               | Q(participant__last_name__contains=value) | Q(percentage_samples__contains=value))
+            if value:
+                data = data.filter(Q(image__original_name__contains=value) | Q(participant__first_name__contains=value)
+                                   | Q(participant__last_name__contains=value) | Q(percentage_samples__contains=value))
         return data
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(TrialList, self).get_context_data(**kwargs)
+
+        search = ''
+        if self.request.GET.get('search'):
+            search = self.request.GET.get('search')
+        context['search'] = search
+
+        return context
 
 
 class TrialCreate(SuccessMessageMixin, CreateView):
@@ -33,6 +45,17 @@ class TrialCreate(SuccessMessageMixin, CreateView):
     template_name_suffix = '_create'
     success_url = reverse_lazy('trials:list')
     success_message = "Trial was created successfully"
+    error_message = "Invalid file"
+
+    def form_valid(self, form):
+        response = super(SuccessMessageMixin, self).form_valid(form)
+        success_message = self.get_success_message(form.cleaned_data)
+
+        if (self.object.id is None):
+            messages.error(self.request, self.error_message)
+        else:
+            messages.success(self.request, success_message)
+        return response
 
 
 class TrialDetail(DetailView):
@@ -89,8 +112,9 @@ class TrialDataList(SingleTableView):
         data = TrialData.objects.filter(trial=pk)
         if self.request.GET.get('search'):
             value = self.request.GET.get('search')
-            data = data.filter(Q(avg_x=value) | Q(avg_y=value)
-                               | Q(left_pupil_size=value) | Q(right_pupil_size=value))
+            if value:
+                data = data.filter(Q(avg_x=value) | Q(avg_y=value)
+                                   | Q(left_pupil_size=value) | Q(right_pupil_size=value))
         return data
 
     def get_context_data(self, **kwargs):
@@ -100,10 +124,23 @@ class TrialDataList(SingleTableView):
         # Add in a QuerySet data trial
         pk = self.kwargs.get('pk')
 
+        model = get_object_or_404(Trial, pk=pk)
+        context['participant_name'] = model.participant.first_name + ' ' + model.participant.last_name
+        context['image_name'] = model.image.original_name
+        context['duration'] = model.end_date - model.start_date
+
         data_trial = Utils().data_trial(pk)
-        context['raw'] = data_trial['raw']
-        context['pupil'] = data_trial['pupil']
+        context['raw_pupil'] = data_trial['raw_pupil']
+        context['smooth_pupil'] = data_trial['smooth_pupil']
+        context['fixed_pupil_distance'] = data_trial['fixed_pupil_distance']
+        context['raw_distance'] = data_trial['raw_distance']
+        context['smooth_distance'] = data_trial['smooth_distance']
         context['first_index_baseline'] = data_trial['first_index_baseline']
         context['last_index_baseline'] = data_trial['last_index_baseline']
+
+        search = ''
+        if self.request.GET.get('search'):
+            search = self.request.GET.get('search')
+        context['search'] = search
 
         return context
