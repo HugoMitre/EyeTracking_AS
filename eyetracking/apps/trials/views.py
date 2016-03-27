@@ -36,6 +36,16 @@ class TrialList(SingleTableView):
             search = self.request.GET.get('search')
         context['search'] = search
 
+        trial = Trial()
+        total = trial.get_total()
+        if total > 0:
+            percentage_valid = trial.get_percentage_valid(total)
+            context['percentage_valid'] = percentage_valid
+
+            solved = trial.get_solved()
+            context['solved'] = solved
+            context['unsolved'] = total - solved
+
         return context
 
 

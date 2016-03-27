@@ -88,6 +88,19 @@ class Trial(models.Model):
 
         return data, eye_data
 
+    def get_total(self):
+        return Trial.objects.count()
+
+    def get_percentage_valid(self, total):
+        valid_trials = Trial.objects.filter(percentage_samples__gte=79.99).count()
+
+        percentage_valid = (valid_trials * 100)/total
+
+        return round(percentage_valid, 2)
+
+    def get_solved(self):
+        return Trial.objects.filter(resolved=True).count()
+
 
 class TrialData(models.Model):
     timestamp = models.DateTimeField()
@@ -124,7 +137,7 @@ class TrialData(models.Model):
         percentage_missing = (missing * 100.00)/total
         percentage_good = 100 - percentage_missing
 
-        return str(round(percentage_good, 2))
+        return round(percentage_good, 2)
 
 @receiver(post_save, sender=Trial)
 def update_trial(sender, instance, created, **kwargs):

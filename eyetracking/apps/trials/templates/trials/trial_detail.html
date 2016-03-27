@@ -9,6 +9,8 @@
 {% block page_title %} View Trial {% endblock %}
 
 {% block actions %}
+    <a class="btn btn-primary" href="{% url 'trials:update' object.pk %}" role="button"><i class="glyphicon glyphicon-edit"></i> Update</a>
+
     <form class="form-inline" method="POST" action="{% url 'trials:delete' object.pk %}">
         {% csrf_token %}
         <button onclick="return confirm('Are you sure you want to delete?')" type="submit" class="btn btn-danger tooltip-btn" data-toggle="tooltip" data-placement="top" data-original-title="Delete">
