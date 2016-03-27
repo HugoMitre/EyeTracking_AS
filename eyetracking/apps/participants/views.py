@@ -25,9 +25,21 @@ class ParticipantList(SingleTableView):
         data = Participant.objects.all()
         if self.request.GET.get('search'):
             value = self.request.GET.get('search')
-            data = data.filter(Q(first_name__contains=value) | Q(last_name__contains=value)
-                               | Q(gender=value) | Q(age=value))
+            if value:
+                data = data.filter(Q(first_name__contains=value) | Q(last_name__contains=value)
+                                   | Q(gender=value) | Q(age__contains=value))
         return data
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super(ParticipantList, self).get_context_data(**kwargs)
+
+        search = ''
+        if self.request.GET.get('search'):
+            search = self.request.GET.get('search')
+        context['search'] = search
+
+        return context
 
 
 class ParticipantCreate(SuccessMessageMixin, CreateView):
