@@ -9,7 +9,7 @@ class TrialTable(tables.Table):
     image = tables.Column(verbose_name='Image', orderable=False)
     trial_name = tables.Column(empty_values=())
     participant = tables.Column(verbose_name='Participant')
-    duration = tables.Column(empty_values=())
+    duration = tables.Column(empty_values=(), orderable=False)
     percentage_samples = tables.Column(verbose_name='Samples')
     resolved = tables.Column(verbose_name='Solved')
     level = tables.Column(verbose_name='Level')
