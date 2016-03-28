@@ -1,7 +1,6 @@
 import numpy as np
 import datetime
 from scipy import interpolate
-from ..trials.models import Trial, TrialData
 
 
 class Utils():
@@ -153,7 +152,7 @@ class Utils():
 
         return data_new
 
-    def data_trial(self, trial_id):
+    def get_signals(self, trial_data):
 
         first_index_baseline = 0
         last_index_baseline = 0
@@ -162,7 +161,7 @@ class Utils():
         utils = Utils()
 
         # Get data with average of left and right eyes
-        eye_data = utils.get_data(TrialData.objects.filter(trial=trial_id))
+        eye_data = utils.get_data(trial_data)
 
         # Save raw data in another var
         raw_pupil = eye_data['pupil'][:]
@@ -204,13 +203,13 @@ class Utils():
                 'raw_distance':raw_distance, 'smooth_distance':eye_data['distance'],
                 'first_index_baseline':first_index_baseline, 'last_index_baseline':last_index_baseline}
 
-    def get_features(self, trial_id):
+    def get_features(self, trial_data):
 
         # Init utils
         utils = Utils()
 
         # Get all trial data
-        eye_data = TrialData.objects.filter(trial=trial_id)
+        eye_data = trial_data
 
         # Average left and right eyes
         eye_data = utils.get_data(eye_data)
@@ -234,7 +233,7 @@ class Utils():
         baseline_pupil, trial_pupil = utils.split_values(eye_data['dates'], fixed_pupil_distance)
 
         # Baseline
-        average_baseline = sum(baseline_pupil) / len(baseline_pupil)
+        average_baseline = round(sum(baseline_pupil) / len(baseline_pupil), 4)
 
         # Features
         pcps = [(x - average_baseline)/average_baseline for x in trial_pupil]
@@ -243,4 +242,4 @@ class Utils():
         mpd = round(sum(trial_pupil) / len(trial_pupil), 4)
         mpdc = round(mpd - average_baseline, 4)
 
-        return {'apcps':apcps, 'mpd':mpd, 'mpdc':mpdc}
+        return {'baseline':average_baseline, 'apcps':apcps, 'mpd':mpd, 'mpdc':mpdc}

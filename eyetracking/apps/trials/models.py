@@ -4,6 +4,7 @@ from django.db.models import signals
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from ..statistics.utils import Utils
 from ..participants.models import Participant
 from ..images.models import Image
 
@@ -103,6 +104,14 @@ class Trial(models.Model):
         return Trial.objects.filter(resolved=True).count()
 
 
+class TrialFeatures(models.Model):
+    baseline = models.FloatField()
+    apcps = models.FloatField()
+    mpd = models.FloatField()
+    mpdc = models.FloatField()
+    trial = models.ForeignKey(Trial)
+
+
 class TrialData(models.Model):
     timestamp = models.DateTimeField()
     time = models.IntegerField()
@@ -132,7 +141,7 @@ class TrialData(models.Model):
 
     @classmethod
     def percentage_samples(self, trial):
-        total = self.objects.count()
+        total = self.objects.filter(trial=trial).count()
         missing = self.objects.filter(left_pupil_size=0, right_pupil_size=0, trial=trial).count()
 
         percentage_missing = (missing * 100.00)/total
@@ -196,6 +205,14 @@ def update_trial(sender, instance, created, **kwargs):
                 instance.comments = data['comments']
                 instance.percentage_samples = TrialData.percentage_samples(instance.pk)
                 instance.save()
+
+                # Save features
+                features = Utils().get_features(TrialData.objects.filter(trial=instance.pk))
+                TrialFeatures.objects.create(baseline=features['baseline'],
+                                             apcps=features['apcps'],
+                                             mpd=features['mpd'],
+                                             mpdc=features['mpdc'],
+                                             trial=instance)
 
         except Exception:
             instance.delete()

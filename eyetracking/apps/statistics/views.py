@@ -1,49 +1,33 @@
-from django.views.generic.base import TemplateResponseMixin
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
-from vanilla import TemplateView
 from django_tables2 import SingleTableView
-from ..trials.models import Trial, TrialData
+from ..trials.models import Trial, TrialData, TrialFeatures
 from .tables import StatisticsTable, TrialDataTable
 from .utils import Utils
 
-class StatisticList(TemplateResponseMixin, TemplateView):
+class StatisticList(SingleTableView):
+    model = TrialFeatures
     template_name = 'statistics/statistic_list.html'
+    table_class = StatisticsTable
+    table_pagination = False
 
-    def get_name(self, item):
-        return item['name']
-
-    def get_errors(self, item):
-        return item['errors']
+    def get_table_data(self):
+        data = TrialFeatures.objects.filter(trial__percentage_samples__gte=79.99, trial__resolved=1)
+        if self.request.GET.get('search'):
+            value = self.request.GET.get('search')
+            if value:
+                data = data.filter(Q(trial__participant__first_name=value) | Q(trial__participant__last_name=value)
+                                   | Q(trial__image__original_name=value))
+        return data
 
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super(StatisticList, self).get_context_data(**kwargs)
 
-        trials = Trial.objects.filter(percentage_samples__gte=79.99, resolved=True, level=1)
-
-        data =[]
-        all_features = []
-
-        for trial in trials:
-            features = Utils().get_features(trial.pk)
-            all_features.append(features)
-
-            data_trial = {'participant_name':trial.participant.first_name + ' ' + trial.participant.last_name,
-                          'image_name':trial.image.original_name, 'duration':trial.end_date - trial.start_date,
-                          'errors':trial.errors, 'apcps':features['apcps'],  'mpd':features['mpd'],
-                          'mpdc':features['mpdc'], 'actions':trial.pk}
-
-            data.append(data_trial)
-
-        if self.request.GET.get('sort'):
-            sort_value = self.request.GET.get('sort')
-            if sort_value == 'name':
-                data = sorted(data, key=self.get_name)
-            elif sort_value == 'errors':
-                data = sorted(data, key=self.get_errors)
-
-        context['table'] = StatisticsTable(data)
+        search = ''
+        if self.request.GET.get('search'):
+            search = self.request.GET.get('search')
+        context['search'] = search
 
         return context
 
@@ -77,14 +61,14 @@ class TrialDataList(SingleTableView):
         context['image_name'] = model.image.original_name
         context['duration'] = model.end_date - model.start_date
 
-        data_trial = Utils().data_trial(pk)
-        context['raw_pupil'] = data_trial['raw_pupil']
-        context['smooth_pupil'] = data_trial['smooth_pupil']
-        context['fixed_pupil_distance'] = data_trial['fixed_pupil_distance']
-        context['raw_distance'] = data_trial['raw_distance']
-        context['smooth_distance'] = data_trial['smooth_distance']
-        context['first_index_baseline'] = data_trial['first_index_baseline']
-        context['last_index_baseline'] = data_trial['last_index_baseline']
+        trial_data = Utils().get_signals(TrialData.objects.filter(trial=pk))
+        context['raw_pupil'] = trial_data['raw_pupil']
+        context['smooth_pupil'] = trial_data['smooth_pupil']
+        context['fixed_pupil_distance'] = trial_data['fixed_pupil_distance']
+        context['raw_distance'] = trial_data['raw_distance']
+        context['smooth_distance'] = trial_data['smooth_distance']
+        context['first_index_baseline'] = trial_data['first_index_baseline']
+        context['last_index_baseline'] = trial_data['last_index_baseline']
 
         search = ''
         if self.request.GET.get('search'):
