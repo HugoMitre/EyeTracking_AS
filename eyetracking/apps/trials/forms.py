@@ -10,7 +10,13 @@ class TrialUploadForm(forms.ModelForm):
 		fields = ['file']
 
 class TrialUpdateForm(forms.ModelForm):
-	resolved = forms.BooleanField(label='Solved')
+	resolved = forms.BooleanField(label='Solved', required=False)
+	LEVELS = (
+        (1, 'Level 1'),
+        (2, 'Level 2'),
+		(3, 'Level 3'),
+    )
+	level = forms.ChoiceField(LEVELS)
 
 	class Meta:
 		model = Trial
