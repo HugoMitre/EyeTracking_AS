@@ -15,7 +15,7 @@ from .tables import TrialTable
 class TrialList(SingleTableView):
     model = Trial
     table_class = TrialTable
-    table_pagination = {'per_page': 10}
+    table_pagination = {'per_page': 5}
 
     def get_table_data(self):
         data = Trial.objects.all()
