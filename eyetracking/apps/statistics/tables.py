@@ -11,11 +11,13 @@ class StatisticsTable(tables.Table):
     apcps = tables.Column(verbose_name='APCPS')
     mpd = tables.Column(verbose_name='MPD')
     mpdc = tables.Column(verbose_name='MPDC')
+    peak = tables.Column(verbose_name='Peak')
+    peak_change = tables.Column(verbose_name='Peak Change')
     actions = tables.TemplateColumn(orderable=False, template_name='statistics/statistic_actions.html', attrs={"td": {"nowrap":"nowrap"}})
 
     class Meta:
         model = TrialFeatures
-        fields = ('row_number', 'trial_name', 'participant', 'duration', 'errors', 'apcps', 'mpd', 'mpdc')
+        fields = ('row_number', 'trial_name', 'participant', 'duration', 'errors', 'apcps', 'mpd', 'mpdc', 'peak', 'peak_change')
 
     def __init__(self, *args, **kwargs):
         super(StatisticsTable, self).__init__(*args, **kwargs)

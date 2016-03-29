@@ -2,11 +2,11 @@
 {% load staticfiles %}
 {% load render_table from django_tables2 %}
 
-{% block head_files %}
-    <link rel="stylesheet" href="{% static 'statistics/css/statistics.css' %}"/>
-{% endblock %}
-
 {% block title %} View Statistics {% endblock %}
+
+{% block actions %}
+    <a class="btn btn-success" href="{% url 'statistics:charts_levels' %}" role="button"><i class="fa fa-bar-chart"></i> Compare Levels</a>
+{% endblock %}
 
 {% block menu %}
     {% include 'menu.html' with active_menu='statistics' %}
@@ -17,13 +17,4 @@
 {% block content %}
     {% include 'statistics/statistic_search.html' %}
     {% render_table table "statistics/statistic_tfoot.html" %}
-{% endblock %}
-
-{% block body_files %}
-    <script src="{% static 'statistics/js/statistics.js' %}"></script>
-    <script>
-        //slider('.slider');
-        //startStatistics();
-        //$("#zoom_05").elevateZoom({ zoomType: "inner", cursor: "crosshair" });
-    </script>
 {% endblock %}

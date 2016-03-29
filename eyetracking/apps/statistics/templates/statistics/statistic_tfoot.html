@@ -3,12 +3,13 @@
 {% block table.tfoot %}
     <tfoot>
         <tr>
-            <td colspan="3" style="text-align: right"><strong>Total</strong></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td colspan="4" style="text-align: right"><strong>Mean</strong></td>
+            <td>{{ totals.errors }}</td>
+            <td>{{ totals.apcps }}</td>
+            <td>{{ totals.mpd }}</td>
+            <td>{{ totals.mpdc }}</td>
+            <td>{{ totals.peak }}</td>
+            <td>{{ totals.peak_change }}</td>
             <td></td>
         </tr>
     </tfoot>

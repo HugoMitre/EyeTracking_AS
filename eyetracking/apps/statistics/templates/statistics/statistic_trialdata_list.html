@@ -34,6 +34,6 @@
 {% block body_files %}
     <script src="{% static 'statistics/js/statistics.js' %}"></script>
     <script>
-        generateLineChart({{ raw_pupil }}, {{ smooth_pupil }}, {{ fixed_pupil_distance }}, {{ raw_distance }}, {{ smooth_distance }}, {{ first_index_baseline }}, {{ last_index_baseline }});
+        generateLineChart({{ raw_pupil }}, {{ smooth_pupil }}, {{ fixed_pupil_distance }}, {{ raw_distance }}, {{ smooth_distance }}, {{ first_index_baseline }}, {{ last_index_baseline }}, {{ first_index_solved }});
     </script>
 {% endblock %}

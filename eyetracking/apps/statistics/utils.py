@@ -43,10 +43,23 @@ class Utils():
 
         return {'pupil':pupil, 'dates':dates, 'distance':distance}
 
-    def linear_interpolation(self, data):
+    def linear_interpolation(self, data, samples=20):
 
         # Convert array to ndarray
         data_np =  np.array(data)
+
+        x_not_zero = np.where(data_np)
+        y_not_zero = [data_np[element] for element in x_not_zero]
+
+        # If first value is 0 set mean with the first valid samples (default=20)
+        if x_not_zero[0][0] != 0:
+            mean_first = np.mean(y_not_zero[0][:samples])
+            data_np[0] = mean_first
+
+        # If last value is 0 set mean with the first valid samples (default=20)
+        if x_not_zero[0][-1] != len(data_np)-1:
+            mean_last = np.mean(y_not_zero[0][-samples:])
+            data_np[-1] = mean_last
 
         # Find positions (x) and values (y) where data is not 0
         x = np.where(data_np)
@@ -64,7 +77,7 @@ class Utils():
         # Call function
         y_new = f(x_new)
 
-        data_new = data
+        data_new = data_np.tolist()
 
         # Replace zeros with values interpolated
         i = 0
@@ -111,28 +124,22 @@ class Utils():
 
         return baseline, trial
 
-    def remove_outliers(self, data, n_sigma=3):
+    def remove_outliers(self, data, n_sigma=2):
 
         # Convert array to ndarray
         data_np =  np.array(data)
-        data_new = []
 
         mean = np.mean(data_np)
         sd = np.std(data_np)
 
-        # if SD is not too low
-        if sd > mean*0.1:
+        lower = mean - n_sigma*sd
+        upper = mean + n_sigma*sd
 
-            lower = mean - n_sigma*sd
-            upper = mean + n_sigma*sd
+        outlier = (data_np > upper) | (data_np < lower)
 
-            outlier = (data_np > upper) | (data_np < lower)
+        data_np[outlier] = 0.0
 
-            data_np[outlier] = 0.0
-
-            data_new = data_np.tolist()
-
-            Utils().linear_interpolation(data_new)
+        data_new = Utils().linear_interpolation(data_np.tolist())
 
         return data_new
 
@@ -156,6 +163,7 @@ class Utils():
 
         first_index_baseline = 0
         last_index_baseline = 0
+        first_index_solved = 0
 
         # Init utils
         utils = Utils()
@@ -170,9 +178,9 @@ class Utils():
         # Linear interpolation
         eye_data['pupil'] = utils.linear_interpolation(eye_data['pupil'])
 
-        # Remove outliers distance
+        # Remove outliers
         eye_data['distance'] = utils.remove_outliers_distance(eye_data['distance'])
-        #eye_data['distance'] = utils.remove_outliers(eye_data['distance'])
+        eye_data['pupil'] = utils.remove_outliers(eye_data['pupil'])
 
         # Hampel filter
         eye_data['pupil'] = utils.hampel(eye_data['pupil'])
@@ -184,11 +192,16 @@ class Utils():
 
         # Time for baseline
         start_date = eye_data['dates'][0]
-        begin_baseline = start_date + datetime.timedelta(0,7)
+        begin_baseline = start_date + datetime.timedelta(0,6)
         end_baseline = begin_baseline + datetime.timedelta(0,2)
+
+        # Time when is solved
+        end_date = eye_data['dates'][-1]
+        date_solved = end_date - datetime.timedelta(0,5)
 
         # Get index baseline
         i = 0
+
         for date in eye_data['dates']:
             if date > begin_baseline and date < end_baseline:
                 # Add index first position baseline
@@ -197,11 +210,15 @@ class Utils():
 
                 # Always save the last position
                 last_index_baseline = i
+            elif date > date_solved and first_index_solved == 0:
+                first_index_solved = i
+
             i += 1
 
         return {'raw_pupil':raw_pupil, 'smooth_pupil': eye_data['pupil'], 'fixed_pupil_distance': fixed_pupil_distance,
                 'raw_distance':raw_distance, 'smooth_distance':eye_data['distance'],
-                'first_index_baseline':first_index_baseline, 'last_index_baseline':last_index_baseline}
+                'first_index_baseline':first_index_baseline, 'last_index_baseline':last_index_baseline,
+                'first_index_solved':first_index_solved}
 
     def get_features(self, trial_data):
 
@@ -219,7 +236,7 @@ class Utils():
 
         # Remove outliers distance
         eye_data['distance'] = utils.remove_outliers_distance(eye_data['distance'])
-        #eye_data['distance'] = utils.remove_outliers(eye_data['distance'])
+        eye_data['pupil'] = utils.remove_outliers(eye_data['pupil'])
 
         # Hampel filter
         eye_data['pupil'] = utils.hampel(eye_data['pupil'])
@@ -239,7 +256,10 @@ class Utils():
         pcps = [(x - average_baseline)/average_baseline for x in trial_pupil]
         apcps = round(sum(pcps) / len(pcps), 4)
 
+        peak = round(max(trial_pupil), 4)
+        peak_change = round(peak - average_baseline, 4)
+
         mpd = round(sum(trial_pupil) / len(trial_pupil), 4)
         mpdc = round(mpd - average_baseline, 4)
 
-        return {'baseline':average_baseline, 'apcps':apcps, 'mpd':mpd, 'mpdc':mpdc}
+        return {'baseline':average_baseline, 'apcps':apcps, 'mpd':mpd, 'mpdc':mpdc, 'peak':peak, 'peak_change':peak_change}
