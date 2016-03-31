@@ -15,7 +15,7 @@ class StatisticList(SingleTableView):
     table_pagination = False
 
     def get_table_data(self):
-        data = TrialFeatures.objects.filter(trial__percentage_samples__gte=79.99, trial__resolved=1)
+        data = TrialFeatures.objects.filter(trial__percentage_samples__gte=79.99, trial__resolved=1).order_by('trial__participant__first_name')
 
         if self.request.GET.get('search'):
             value = self.request.GET.get('search')

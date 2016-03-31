@@ -108,7 +108,7 @@ class Utils():
 
         # Time for baseline
         begin_baseline = start_date + datetime.timedelta(0,7)
-        end_baseline = begin_baseline + datetime.timedelta(0,2)
+        end_baseline = begin_baseline + datetime.timedelta(0,1)
 
         baseline =[]
         last_index_baseline = 0
@@ -192,8 +192,8 @@ class Utils():
 
         # Time for baseline
         start_date = eye_data['dates'][0]
-        begin_baseline = start_date + datetime.timedelta(0,6)
-        end_baseline = begin_baseline + datetime.timedelta(0,2)
+        begin_baseline = start_date + datetime.timedelta(0,7)
+        end_baseline = begin_baseline + datetime.timedelta(0,1)
 
         # Time when is solved
         end_date = eye_data['dates'][-1]
@@ -250,16 +250,18 @@ class Utils():
         baseline_pupil, trial_pupil = utils.split_values(eye_data['dates'], fixed_pupil_distance)
 
         # Baseline
-        average_baseline = round(sum(baseline_pupil) / len(baseline_pupil), 4)
+        average_baseline = round(np.mean(baseline_pupil), 4)
 
         # Features
         pcps = [(x - average_baseline)/average_baseline for x in trial_pupil]
-        apcps = round(sum(pcps) / len(pcps), 4)
+        apcps = round(np.mean(pcps), 4)
+
+        mpd = round(np.mean(trial_pupil), 4)
+        mpdc = round(mpd - average_baseline, 4)
 
         peak = round(max(trial_pupil), 4)
         peak_change = round(peak - average_baseline, 4)
 
-        mpd = round(sum(trial_pupil) / len(trial_pupil), 4)
-        mpdc = round(mpd - average_baseline, 4)
+        sd = round(np.std(trial_pupil), 4)
 
-        return {'baseline':average_baseline, 'apcps':apcps, 'mpd':mpd, 'mpdc':mpdc, 'peak':peak, 'peak_change':peak_change}
+        return {'baseline':average_baseline, 'apcps':apcps, 'mpd':mpd, 'mpdc':mpdc, 'peak':peak, 'peak_change':peak_change, 'sd':sd}

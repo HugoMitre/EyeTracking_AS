@@ -4,6 +4,7 @@ from django.db.models import signals, Avg, Q
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+import numpy as np
 from ..statistics.utils import Utils
 from ..participants.models import Participant
 from ..images.models import Image
@@ -100,8 +101,12 @@ class Trial(models.Model):
 
         return round(percentage_valid, 2)
 
-    def get_solved(self):
-        return Trial.objects.filter(resolved=True).count()
+    def get_percentage_solved(self, total):
+        solved_trials = Trial.objects.filter(resolved=True).count()
+
+        percentage_solved = (solved_trials * 100)/total
+
+        return round(percentage_solved, 2)
 
 
 class TrialFeatures(models.Model):
@@ -111,6 +116,7 @@ class TrialFeatures(models.Model):
     mpdc = models.FloatField()
     peak = models.FloatField(default=0.0)
     peak_change = models.FloatField(default=0.0)
+    sd = models.FloatField(default=0.0)
     trial = models.ForeignKey(Trial)
 
     def get_totals(self, level, participant = '', search = ''):
@@ -125,6 +131,8 @@ class TrialFeatures(models.Model):
         peak_array = []
         peak_change = 0.0
         peak_change_array = []
+        sd = 0.0
+        sd_array = []
         trials_num = 0
 
         if participant:
@@ -133,8 +141,8 @@ class TrialFeatures(models.Model):
             trials = Trial.objects.filter(level=level, percentage_samples__gte=79.99, resolved = True)
 
         if search:
-            trials_search = trials.filter(Q(trial__participant__first_name__contains=search) | Q(trial__participant__last_name__contains=search)
-                               | Q(trial__image__original_name__contains=search))
+            trials_search = trials.filter(Q(participant__first_name__contains=search) | Q(participant__last_name__contains=search)
+                               | Q(image__original_name__contains=search))
         else:
             trials_search = trials
 
@@ -142,22 +150,24 @@ class TrialFeatures(models.Model):
         errors = round(trials_errors['errors__avg'], 4) if trials_errors['errors__avg'] else 0.0
 
         for trial in trials_search:
-            features = TrialFeatures.objects.filter(trial=trial.pk).aggregate(Avg('apcps'), Avg('mpd'), Avg('mpdc'), Avg('peak'), Avg('peak_change'))
+            features = TrialFeatures.objects.filter(trial=trial.pk).aggregate(Avg('apcps'), Avg('mpd'), Avg('mpdc'), Avg('peak'), Avg('peak_change'), Avg('sd'))
             apcps_array.append(features['apcps__avg'])
             mpd_array.append(features['mpd__avg'])
             mpdc_array.append(features['mpdc__avg'])
             peak_array.append(features['peak__avg'])
             peak_change_array.append(features['peak_change__avg'])
+            sd_array.append(features['sd__avg'])
 
         if len(apcps_array) > 0:
-            apcps = round(sum(apcps_array)/len(apcps_array),4)
-            mpd = round(sum(mpd_array)/len(mpd_array), 4)
-            mpdc = round(sum(mpdc_array)/len(mpdc_array),4)
-            peak = round(sum(peak_array)/len(peak_array), 4)
-            peak_change = round(sum(peak_change_array)/len(peak_change_array), 4)
+            apcps = round(np.mean(apcps_array),4)
+            mpd = round(np.mean(mpd_array), 4)
+            mpdc = round(np.mean(mpdc_array),4)
+            peak = round(np.mean(peak_array), 4)
+            peak_change = round(np.mean(peak_change_array), 4)
+            sd = round(np.mean(sd_array), 4)
             trials_num= len(apcps_array)
 
-        return {'apcps':apcps, 'mpd':mpd, 'mpdc':mpdc, 'errors':errors, 'peak':peak, 'peak_change':peak_change, 'trials_num':trials_num}
+        return {'apcps':apcps, 'mpd':mpd, 'mpdc':mpdc, 'errors':errors, 'peak':peak, 'peak_change':peak_change, 'sd':sd, 'trials_num':trials_num}
 
 
 class TrialData(models.Model):
@@ -271,10 +281,11 @@ def update_trial(sender, instance, created, **kwargs):
                                              mpdc=features['mpdc'],
                                              peak=features['peak'],
                                              peak_change=features['peak_change'],
+                                             sd=features['sd'],
                                              trial=instance)
         except Exception as e:
             instance.delete()
-            #print e
+            print e
 
         # Connect signal
         signals.post_save.connect(update_trial, sender=sender)

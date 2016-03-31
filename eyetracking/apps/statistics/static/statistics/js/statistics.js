@@ -59,6 +59,8 @@ changeParticipantLevels = function(idSelect, url, idsCharts, idsTrialsLabels){
              generateBarChart(idsCharts[2], data[1]['errors'], data[2]['errors'], data[3]['errors']);
              generateBarChart(idsCharts[3], data[1]['mpd'], data[2]['mpd'], data[3]['mpd']);
              generateBarChart(idsCharts[4], data[1]['mpdc'], data[2]['mpdc'], data[3]['mpdc']);
+             generateBarChart(idsCharts[5], data[1]['peak_change'], data[2]['peak_change'], data[3]['peak_change']);
+             generateBarChart(idsCharts[6], data[1]['sd'], data[2]['sd'], data[3]['sd']);
 
              trials_num1_str = getLabel(data[1]['trials_num'], 'trial', 'trials');
              trials_num2_str = getLabel(data[2]['trials_num'], 'trial', 'trials');

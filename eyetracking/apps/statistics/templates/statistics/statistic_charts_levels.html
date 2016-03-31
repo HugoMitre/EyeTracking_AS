@@ -46,7 +46,7 @@
                         <div class="col-sm-12" style="padding-left: 0px;">
                             <label>Participant</label>
                             <select id="select_participant" name="level" class="form-control">
-                                <option value="all">All</option>
+                                <option value="">All</option>
                                 {% for participant in participants %}
                                     <option value="{{ participant.pk }}">{{ participant.first_name }} {{ participant.last_name }}</option>
                                 {% endfor %}
@@ -60,22 +60,32 @@
     <hr>
     <div class="container">
         <div class="col-lg-6" style="text-align: center;">
-            <h5>Average Percentage Change in Pupil Size (APCPS)</h5>
-            <div id="chart1"></div>
-        </div>
-        <div class="col-lg-6" style="text-align: center;">
             <h5>Errors</h5>
             <div id="chart2"></div>
+        </div>
+        <div class="col-lg-6" style="text-align: center;">
+            <h5>Average Percentage Change in Pupil Size (APCPS)</h5>
+            <div id="chart1"></div>
         </div>
     </div>
     <div class="container">
         <div class="col-lg-6" style="text-align: center;">
-            <h5>Mean Pupil Diameter Change (MPDC)</h5>
+            <h5>Mean Pupil Diameter (MPD)</h5>
             <div id="chart3"></div>
         </div>
         <div class="col-lg-6" style="text-align: center;">
-             <h5>Mean Pupil Diameter (MPD)</h5>
+            <h5>Mean Pupil Diameter Change (MPDC)</h5>
             <div id="chart4"></div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="col-lg-6" style="text-align: center;">
+            <h5>Peak Dilation</h5>
+            <div id="chart5"></div>
+        </div>
+        <div class="col-lg-6" style="text-align: center;">
+            <h5>SD</h5>
+            <div id="chart6"></div>
         </div>
     </div>
 {% endblock %}
@@ -93,9 +103,11 @@
         generateBarChart('#chart2', {{ features.1.errors }}, {{ features.2.errors }}, {{ features.3.errors }});
         generateBarChart('#chart3', {{ features.1.mpd }}, {{ features.2.mpd }}, {{ features.3.mpd }});
         generateBarChart('#chart4', {{ features.1.mpdc }}, {{ features.2.mpdc }}, {{ features.3.mpdc }});
+        generateBarChart('#chart5', {{ features.1.peak_change }}, {{ features.2.peak_change }}, {{ features.3.peak_change }});
+        generateBarChart('#chart6', {{ features.1.sd }}, {{ features.2.sd }}, {{ features.3.sd }});
 
         {# Generate charts for participant selected #}
-        idsCharts = {1:'#chart1', 2:'#chart2', 3:'#chart3', 4:'#chart4'};
+        idsCharts = {1:'#chart1', 2:'#chart2', 3:'#chart3', 4:'#chart4', 5:'#chart5', 6:'#chart6'};
         idsTrialsLabels = {1:'#trial_num_1', 2:'#trial_num_2', 3:'#trial_num_3'};
         $(document).ready(changeParticipantLevels('#select_participant', '/statistics/participant_levels', idsCharts, idsTrialsLabels));
     </script>
