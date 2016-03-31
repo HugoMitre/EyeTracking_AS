@@ -39,7 +39,7 @@ class TrialTable(tables.Table):
         return mark_safe('''<span class="label label-success">Yes</span>''') if value else mark_safe('''<span class="label label-danger">No</span>''')
 
     def render_tr_class(self, value, record):
-        if record.percentage_samples < 80.0:
+        if record.percentage_samples < 80.0 or record.resolved == False:
             return 'danger'
         else:
             return 'success'
