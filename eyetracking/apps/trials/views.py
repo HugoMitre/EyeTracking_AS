@@ -15,10 +15,10 @@ from .tables import TrialTable
 class TrialList(SingleTableView):
     model = Trial
     table_class = TrialTable
-    table_pagination = {'per_page': 5}
+    table_pagination = {'per_page': 10}
 
     def get_table_data(self):
-        data = Trial.objects.all()
+        data = Trial.objects.all().order_by('participant__first_name')
         if self.request.GET.get('search'):
             value = self.request.GET.get('search')
             if value:
@@ -41,9 +41,10 @@ class TrialList(SingleTableView):
             percentage_valid = trial.get_percentage_valid(total)
             context['percentage_valid'] = percentage_valid
 
-            solved = trial.get_solved()
-            context['solved'] = solved
-            context['unsolved'] = total - solved
+            solved = trial.get_percentage_solved(total)
+            context['percentage_solved'] = solved
+
+            context['percentage_total'] = round((percentage_valid + solved)/2, 2)
 
         return context
 

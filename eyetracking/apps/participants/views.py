@@ -22,7 +22,7 @@ class ParticipantList(SingleTableView):
     sd = Participant().sd()
 
     def get_table_data(self):
-        data = Participant.objects.all()
+        data = Participant.objects.all().order_by('first_name')
         if self.request.GET.get('search'):
             value = self.request.GET.get('search')
             if value:

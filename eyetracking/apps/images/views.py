@@ -19,7 +19,7 @@ def index(request):
 
     model = Image.objects.all()
     table = PhotoTable(model)
-    RequestConfig(request, paginate={'per_page': 5}).configure(table)
+    RequestConfig(request, paginate={'per_page': 10}).configure(table)
 
     return render(request, 'images/index.html', {'model':model, 'table': table})
 
