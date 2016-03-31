@@ -18,13 +18,14 @@
 
     <div class="container-fluid">
         <div class="col-lg-10">
-            {% render_table table "table.html" %}
+            {% render_table table "trials/trial_table.html" %}
         </div>
         <div class="col-lg-2 well" style="margin-top: 20px;">
              <div class="col-lg-12" >
                 <p>> 80% = {% if percentage_valid %}{{ percentage_valid }}%{% endif %}</p>
-                <p>Solved = {{ solved }}</p>
-                <p>Unsolved = {{ unsolved }}</p>
+                <p>Solved = {{ percentage_solved }} %</p>
+                <p>-------------------</p>
+                <p>Total = {{ percentage_total }} %</p>
             </div>
         </div>
     </div>

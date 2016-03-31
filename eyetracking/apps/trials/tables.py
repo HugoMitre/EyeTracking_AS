@@ -13,11 +13,12 @@ class TrialTable(tables.Table):
     duration = tables.Column(empty_values=(), orderable=False)
     percentage_samples = tables.Column(verbose_name='Samples')
     resolved = tables.Column(verbose_name='Solved')
-    actions = tables.TemplateColumn(orderable=False, empty_values=(), template_name='trials/trial_actions.html')
+    tr_class=tables.Column(visible=False, empty_values=())
+    actions = tables.TemplateColumn(orderable=False, empty_values=(), template_name='trials/trial_actions.html', attrs={"td": {"nowrap":"nowrap"}})
 
     class Meta:
         model = Trial
-        fields = ('image', 'trial_name', 'level', 'participant', 'duration', 'percentage_samples', 'resolved')
+        fields = ('image', 'trial_name', 'level', 'participant', 'duration', 'percentage_samples', 'resolved', 'tr_class')
 
     def render_image(self, value, record):
         return mark_safe('<img src="' + settings.MEDIA_URL + '/%s" />' % escape(value.resized_image))
@@ -36,3 +37,9 @@ class TrialTable(tables.Table):
 
     def render_resolved(self, value):
         return mark_safe('''<span class="label label-success">Yes</span>''') if value else mark_safe('''<span class="label label-danger">No</span>''')
+
+    def render_tr_class(self, value, record):
+        if record.percentage_samples < 80.0:
+            return 'danger'
+        else:
+            return 'success'
